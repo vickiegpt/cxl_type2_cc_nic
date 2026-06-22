@@ -1,0 +1,15 @@
+.DS_Store
+*.bin
+*.cmd
+*.ko
+*.log
+*.mod
+*.mod.c
+*.o
+*.order
+*.pyc
+Module.symvers
+__pycache__/
+modules.order
+output_files/
+tmp*/
