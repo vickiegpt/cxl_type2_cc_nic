@@ -1,0 +1,52 @@
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_TOOL_NAME "QsysPrimePro"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_TOOL_VERSION "25.1"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_TOOL_ENV "QsysPrimePro"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_TOOL_VENDOR_NAME "Intel Corporation"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_TOP_LEVEL_COMPONENT_NAME "intel_pcie_pio_1024"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name PRE_COMPILED_MODULE "ON"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name OCS_IP_FILE [file join $::quartus(qip_path) "../pcie_ed_pio_1024.ip"]
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name OCS_IP_TYPE "intel_pcie_pio_1024"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name OCS_IP_VERSION "25.1"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name OCS_IP_HASH "xvep7ci"
+set_global_assignment -library "pcie_ed_pio_1024" -name SOPCINFO_FILE [file join $::quartus(qip_path) "pcie_ed_pio_1024.sopcinfo"]
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name SLD_INFO "QSYS_NAME pcie_ed_pio_1024 HAS_SOPCINFO 1 GENERATION_ID 0"
+set_global_assignment -library "pcie_ed_pio_1024" -name MISC_FILE [file join $::quartus(qip_path) "pcie_ed_pio_1024.cmp"]
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_TARGETED_DEVICE_FAMILY "Agilex 7"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_GENERATED_DEVICE_FAMILY "{Agilex 7}"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_QSYS_MODE "STANDALONE"
+set_global_assignment -name SYNTHESIS_ONLY_QIP ON
+set_global_assignment -library "pcie_ed_pio_1024" -name MISC_FILE [file join $::quartus(qip_path) "../pcie_ed_pio_1024.ip"]
+
+set_global_assignment -entity "intel_pcie_bam_v2_hwtcl" -library "intel_pcie_pio_1024_251" -name IP_COMPONENT_NAME "aW50ZWxfcGNpZV9iYW1fdjJfaHd0Y2w="
+set_global_assignment -entity "intel_pcie_bam_v2_hwtcl" -library "intel_pcie_pio_1024_251" -name IP_COMPONENT_DISPLAY_NAME "UElPIERlc2lnbiBFeGFtcGxlIGZvciBQQ0kgRXhwcmVzcyBHNQ=="
+set_global_assignment -entity "intel_pcie_bam_v2_hwtcl" -library "intel_pcie_pio_1024_251" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "intel_pcie_bam_v2_hwtcl" -library "intel_pcie_pio_1024_251" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "intel_pcie_bam_v2_hwtcl" -library "intel_pcie_pio_1024_251" -name IP_COMPONENT_AUTHOR "SW50ZWwgQ29ycG9yYXRpb24="
+set_global_assignment -entity "intel_pcie_bam_v2_hwtcl" -library "intel_pcie_pio_1024_251" -name IP_COMPONENT_VERSION "MjUuMQ=="
+set_global_assignment -entity "intel_pcie_bam_v2_hwtcl" -library "intel_pcie_pio_1024_251" -name IP_COMPONENT_GROUP "SW50ZXJmYWNlIFByb3RvY29scy9QQ0kgRXhwcmVzcy9RU1lTIEV4YW1wbGUgRGVzaWducw=="
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_COMPONENT_NAME "cGNpZV9lZF9waW9fMTAyNA=="
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_COMPONENT_DISPLAY_NAME "c3lzdGVt"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_COMPONENT_REPORT_HIERARCHY "On"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_COMPONENT_AUTHOR "SW50ZWwgQ29ycG9yYXRpb24="
+set_global_assignment -entity "pcie_ed_pio_1024" -library "pcie_ed_pio_1024" -name IP_COMPONENT_VERSION "MS4w"
+
+
+set_global_assignment -library "intel_pcie_pio_1024_251" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_pcie_pio_1024_251/synth/intel_pcie_bam_v2_hwtcl.sv"]
+set_global_assignment -library "intel_pcie_pio_1024_251" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_pcie_pio_1024_251/synth/intel_pcie_reset_sync.v"]
+set_global_assignment -library "intel_pcie_pio_1024_251" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_pcie_pio_1024_251/synth/intel_std_synchronizer_nocut.v"]
+set_global_assignment -library "intel_pcie_pio_1024_251" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_pcie_pio_1024_251/synth/intel_pcie_bam_v2.sv"]
+set_global_assignment -library "intel_pcie_pio_1024_251" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_pcie_pio_1024_251/synth/intel_pcie_bam_v2_avmm_intf.sv"]
+set_global_assignment -library "intel_pcie_pio_1024_251" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_pcie_pio_1024_251/synth/intel_pcie_bam_v2_avst_intf.sv"]
+set_global_assignment -library "intel_pcie_pio_1024_251" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_pcie_pio_1024_251/synth/intel_pcie_bam_v2_cpl.sv"]
+set_global_assignment -library "intel_pcie_pio_1024_251" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_pcie_pio_1024_251/synth/intel_pcie_bam_v2_crdt_intf.sv"]
+set_global_assignment -library "intel_pcie_pio_1024_251" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_pcie_pio_1024_251/synth/intel_pcie_bam_v2_fifos.sv"]
+set_global_assignment -library "intel_pcie_pio_1024_251" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_pcie_pio_1024_251/synth/intel_pcie_bam_v2_rw.sv"]
+set_global_assignment -library "intel_pcie_pio_1024_251" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_pcie_pio_1024_251/synth/intel_pcie_bam_v2_sch_intf.sv"]
+set_global_assignment -library "pcie_ed_pio_1024" -name VERILOG_FILE [file join $::quartus(qip_path) "synth/pcie_ed_pio_1024.v"]
+
+
+set_global_assignment -entity "intel_pcie_bam_v2_hwtcl" -library "intel_pcie_pio_1024_251" -name IP_TOOL_NAME "intel_pcie_pio_1024"
+set_global_assignment -entity "intel_pcie_bam_v2_hwtcl" -library "intel_pcie_pio_1024_251" -name IP_TOOL_VERSION "25.1"
+set_global_assignment -entity "intel_pcie_bam_v2_hwtcl" -library "intel_pcie_pio_1024_251" -name IP_TOOL_ENV "QsysPrimePro"
+

@@ -1,0 +1,227 @@
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_TOOL_NAME "QsysPrimePro"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_TOOL_VERSION "25.1"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_TOOL_ENV "QsysPrimePro"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_TOOL_VENDOR_NAME "Altera Corporation"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_TOP_LEVEL_COMPONENT_NAME "intel_rtile_pcie_ast"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name PRE_COMPILED_MODULE "ON"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name OCS_IP_FILE [file join $::quartus(qip_path) "../pcie_ast.ip"]
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name OCS_IP_TYPE "intel_rtile_pcie_ast"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name OCS_IP_VERSION "11.6.0"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name OCS_IP_HASH "epakjua"
+set_global_assignment -library "pcie_ast" -name SOPCINFO_FILE [file join $::quartus(qip_path) "pcie_ast.sopcinfo"]
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name SLD_INFO "QSYS_NAME pcie_ast HAS_SOPCINFO 1 GENERATION_ID 0"
+set_global_assignment -library "pcie_ast" -name MISC_FILE [file join $::quartus(qip_path) "pcie_ast.cmp"]
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_TARGETED_DEVICE_FAMILY "Agilex 7"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_TARGETED_PART_TRAIT "BASE_DEVICE::FM7"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_TARGETED_PART_TRAIT "DEVICE::AGIB023R18A1E1V"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_GENERATED_DEVICE_FAMILY "{Agilex 7}"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_QSYS_MODE "STANDALONE"
+set_global_assignment -name SYNTHESIS_ONLY_QIP ON
+set_global_assignment -library "pcie_ast" -name MISC_FILE [file join $::quartus(qip_path) "../pcie_ast.ip"]
+
+set_global_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name IP_COMPONENT_NAME "YWx0ZXJhX3MxMF9jb25maWd1cmF0aW9uX2Nsb2Nr"
+set_global_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name IP_COMPONENT_DISPLAY_NAME "Q29uZmlndXJhdGlvbiBDbG9jayBJUA=="
+set_global_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name IP_COMPONENT_AUTHOR "QWx0ZXJh"
+set_global_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name IP_COMPONENT_VERSION "MTkuMS42"
+set_global_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name IP_COMPONENT_DESCRIPTION "SW50ZXJuYWwgT3NjaWxsYXRvciBwcm92aWRlcyBpbnRlcm5hbCBjbG9jayBzb3VyY2UgZm9yIGRlYnVnZ2luZyBwdXJwb3NlLg=="
+set_global_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name IP_COMPONENT_GROUP "QmFzaWMgRnVuY3Rpb25zL0NvbmZpZ3VyYXRpb24gYW5kIFByb2dyYW1taW5n"
+set_global_assignment -entity "s10_configuration_clock_0" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_NAME "czEwX2NvbmZpZ3VyYXRpb25fY2xvY2tfMA=="
+set_global_assignment -entity "s10_configuration_clock_0" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_DISPLAY_NAME "czEwX2NvbmZpZ3VyYXRpb25fY2xvY2tfMA=="
+set_global_assignment -entity "s10_configuration_clock_0" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "s10_configuration_clock_0" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "s10_configuration_clock_0" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "s10_configuration_clock_0" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_VERSION "MTEuNi4w"
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_NAME "cGNpZV9hc3RfaW50ZWxfcnRpbGVfcGNpZV9hc3RfMTE2MF9lcGFranVh"
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_DISPLAY_NAME "Ui1UaWxlIEF2YWxvbiBTdHJlYW1pbmcgSW50ZWwgRlBHQSBJUCBmb3IgUENJIEV4cHJlc3M="
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_AUTHOR "SW50ZWwgQ29ycG9yYXRpb24="
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_VERSION "MTEuNi4w"
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_DESCRIPTION "Ui1UaWxlIEF2YWxvbiBTdHJlYW1pbmcgSW50ZWwgRlBHQSBJUCBmb3IgUENJIEV4cHJlc3M="
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_GROUP "SW50ZXJmYWNlIFByb3RvY29scy9QQ0kgRXhwcmVzcw=="
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_DOCUMENTATION_LINK "aHR0cHM6Ly93d3cuaW50ZWwuY29tL2NvbnRlbnQvd3d3L3VzL2VuL2RvY3MvcHJvZ3JhbW1hYmxlLzY4MzUwMS5odG1s"
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_DOCUMENTATION_LINK "aHR0cHM6Ly93d3cuaW50ZWwuY29tL2NvbnRlbnQvd3d3L3VzL2VuL2RvY3MvcHJvZ3JhbW1hYmxlLzY4MzU0NC5odG1s"
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_COMPONENT_DOCUMENTATION_LINK "aHR0cHM6Ly93d3cuaW50ZWwuY29tL2NvbnRlbnQvd3d3L3VzL2VuL2RvY3MvcHJvZ3JhbW1hYmxlLzY4MzMxMS5odG1s"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_COMPONENT_NAME "cGNpZV9hc3Q="
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_COMPONENT_DISPLAY_NAME "c3lzdGVt"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_COMPONENT_REPORT_HIERARCHY "On"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "pcie_ast" -library "pcie_ast" -name IP_COMPONENT_VERSION "MS4w"
+
+
+set_global_assignment -library "altera_s10_configuration_clock_1916" -name VERILOG_FILE [file join $::quartus(qip_path) "altera_s10_configuration_clock_1916/synth/altera_s10_configuration_clock.v"]
+set_instance_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name SDC_ENTITY_FILE [file join $::quartus(qip_path) "altera_s10_configuration_clock_1916/synth/altera_s10_configuration_clock.sdc"] -no_sdc_promotion  -no_auto_inst_discovery 
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name VERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/s10_configuration_clock_0.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_csbb_gasket.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_soft_rx_wrapper.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_data_skew_sim.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_soft_tx_wrapper.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_tx_dsk_m_gen_24_chnl.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_tx_dsk_m_gen.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_rx_aib_deskew_datapipe.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_rx_aib_deskew_sm.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_rx_aib_deskew.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_ptm_deser.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_reset_ctrl.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_reset_tree.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/gf_clkmux.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/rnr_pcie_ehp_wrapper.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/rnr_pcie_ehp_tx_deallocate_ctr.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/pack/rnr_pcie_ehp_tx_empty_x16.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/pack/rnr_pcie_ehp_tx_empty_x8.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/pack/rnr_pcie_ehp_tx_empty_x8sw.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/pack/rnr_pcie_ehp_pack_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/pack/rnr_pcie_ehp_pack_lut_16sw.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/pack/rnr_pcie_ehp_pack_lut_x8.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/pack/rnr_pcie_ehp_pack_lut_x8sw.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/pack/rnr_pcie_ehp_pack_lut_x4.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/pack/rnr_pcie_ehp_pack_lut_x4sw.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_data_segment_mux.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_data_segment.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_data_valids.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_eop_2_handling.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_eop_dwpos.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_frame_aligner.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_header_eop.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_header_segment.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_header_sidebands.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_header_valid.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_segment_decoding.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_wrapper.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_wrapper_x8.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_shift_segment.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_mux_out.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_wrapper_x4.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_mux_out_x4.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_wrapper_x16_sw.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_wrapper_x8_sw.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/ehp/unpack/rnr_pcie_ehp_unpack_wrapper_x4_sw.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/direct/rnr_rate_change_control.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/direct/rnr_avmm_reconfig.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/direct/rnr_pipe_direct_rate_change_control.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/csb/rnr_pcie_cii_ari_decode.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/csb/rnr_pcie_cii_workaround.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/csb/rnr_pcie_qhip_req_ovr.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/altera_std_synchronizer_nocut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/rnr_simple_fifo.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen0.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen1.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen2.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen3.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen4.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen5.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen6.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen7.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen0_x8.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen1_x8.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen2_x8.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen3_x8.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen0_x4.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen1_x4.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen0_16sw.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen1_16sw.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen2_16sw.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen3_16sw.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen0_x8sw.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lutlen1_x8sw.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut0_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut1_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut2_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut3_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut4_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut5_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut6_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut7_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut0_x8_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut1_x8_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut2_x8_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut3_x8_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut0_x4_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut1_x4_lut.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut0_lut_sw.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut1_lut_sw.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut2_lut_sw.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut3_lut_sw.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut0_x8_lut_sw.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/lut1_x8_lut_sw.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_pcie_sts_clr_workaround.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_com_mcsb.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_com_tcsb.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csb_pkg.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_apperr2csb.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_avmm2csb.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_csb2cii.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_csb2cplto.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_csb2pcicfg.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_pcie_csb2serr.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_pcie_csb2vferr.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_csb_adaptor.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_csbcgcgu.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_csbcism.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_csbcport.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_csbebase.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_csbendpoint.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_csbep_wrapper.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_flr2csb.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_pcie_int2csb.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_pcie_pm2csb.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_pcie_prs2csb.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_user_avmm_adapter.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_pulsesync.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_pcie_vw2csb.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csb_common_module.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_mux2.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_com_syncfifo.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbcasyncclkreq.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbcasyncfifo_egr.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbcasyncfifo_ing.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbcasyncfifo.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbccomp.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbcegress.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csb_cfgif.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbcfifo.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbcingress.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbcinqueue.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbcusync_clk1.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbcusync_clk2.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbebulkrdwr.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbebulkrdwrwrapper.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbebytecount.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbedoserrmstr.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbehierinsert.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbemstrreg.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbemstr.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbetregsplitter.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbetrgtreg.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_csbetrgt.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_cxl_csb2aermsg.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_cxl_csb2cfgupdate.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_cxl_pm2csb.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/intel_rtile_cxl_csb2hiperr.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/cmn/csb/rnr_divclk.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/virtio/rnr_pcie_virtio_rdwr_ctrl.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/virtio/rnr_pcie_virtio_cfg_access_cap.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/virtio/rnr_pcie_virtio_dataflow.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/virtio/rnr_pcie_virtio_cfgmnt.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/virtio/rnr_pcie_virtio_addrdc.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/virtio/rnr_pcie_virtio_top.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/virtio/rnr_pcie_virtio_cap_pfvfreg.v"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/dtk/rtile_debug_toolkit.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/dtk/rtile_link_inspector_top.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/dtk/ltssm_monitor.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/pcie_ast_intel_rtile_pcie_ast_1160_epakjua.sv"]
+set_global_assignment -library "intel_rtile_pcie_ast_1160" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/rnr_pcie_soft_rx_tx_wrapper_pcie_ast_intel_rtile_pcie_ast_1160_epakjua.sv"]
+set_instance_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name SDC_ENTITY_FILE [file join $::quartus(qip_path) "intel_rtile_pcie_ast_1160/synth/intel_rtile_pcie.sdc"] -no_sdc_promotion 
+set_global_assignment -library "pcie_ast" -name VERILOG_FILE [file join $::quartus(qip_path) "synth/pcie_ast.v"]
+
+
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_TOOL_NAME "intel_rtile_pcie_ast"
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_TOOL_VERSION "11.6.0"
+set_global_assignment -entity "pcie_ast_intel_rtile_pcie_ast_1160_epakjua" -library "intel_rtile_pcie_ast_1160" -name IP_TOOL_ENV "QsysPrimePro"
+set_global_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name IP_TOOL_NAME "altera_s10_configuration_clock"
+set_global_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name IP_TOOL_VERSION "19.1.6"
+set_global_assignment -entity "altera_s10_configuration_clock" -library "altera_s10_configuration_clock_1916" -name IP_TOOL_ENV "QsysPrimePro"
+

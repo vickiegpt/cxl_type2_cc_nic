@@ -1,0 +1,1730 @@
+// (C) 2001-2025 Altera Corporation. All rights reserved.
+// Your use of Altera Corporation's design tools, logic functions and other 
+// software and tools, and its AMPP partner logic functions, and any output 
+// files from any of the foregoing (including device programming or simulation 
+// files), and any associated documentation or information are expressly subject 
+// to the terms and conditions of the Altera Program License Subscription 
+// Agreement, Altera IP License Agreement, or other applicable 
+// license agreement, including, without limitation, that your use is for the 
+// sole purpose of programming logic devices manufactured by Altera and sold by 
+// Altera or its authorized distributors.  Please refer to the applicable 
+// agreement for further details.
+
+
+//------------------------------------------------------------------------------
+// Ethernet IP core top level
+//------------------------------------------------------------------------------
+`timescale 1ps/1ps
+//(* tile_ip,tile_type="f_tile" *) Tag not used anymore
+
+  module $module_name
+  #(
+    parameter NUMPORTS                                                          = 1,
+    // SIP Parameters
+    parameter           AIB_LANES                                               = 1, // 25G or 10G = 1, 50G = 2, 100G = 4, 200G = 8, 400G = 16
+    parameter           DATA_WIDTH                                              = 1, // Valid values are { 1, 2, 4, 8, 16}
+    parameter           EMPTY_BITS                                              = 5, // Changes depending on AVST or MAC segmented interface. Refer FS
+    parameter           LANE_NUM                                                = 1, // Number of transciver lanes. Valid values are { 1, 2, 4, 8, 16}
+    parameter           EHIP_RATE                                               = "10G", // Ethernet rate - "10G" "25G" "40G" 50G" "100G" "200G" "400G"
+    parameter           PREAMBLE_PASSTHROUGH                                    = 0, // 
+    parameter           TX_EHIP_PP_EN                                           = "DISABLE",
+    parameter           READY_LATENCY                                           = 0, // 
+    parameter           ENABLE_ASYNC_ADAPTERS                                   = 0, // 
+    parameter           INFRAME                                                 = 0, // 
+    parameter           SEG_ERROR                                               = 0, // 
+    parameter           SEG_EOP_EMPTY                                           = 0, // 
+    parameter           SEG_STATUS                                              = 0, // 
+    parameter           PCS_CONTROL                                             = 0, // 
+    parameter           KEEP_RX_CRC                                             = 0,
+    parameter           ENABLE_ANLT                                             = 0,
+    parameter           XCVR_TYPE_SIP                                           = 0,
+    parameter           CLIENT_INT                                              = 0,
+    parameter           RSFEC_TYPE                                              = 0,
+    parameter           BLOCK_TYPE                                              = 0,
+    parameter           MODULATION                                              = 0,
+    parameter           FLOW_CONTROL                                            = 0,
+    parameter           ENABLE_ADME                                             = 0,
+    parameter           ENABLE_ETK                                              = 0,
+    parameter 		AVMM2_ADDR_WIDTH																=18,
+	 parameter CWBIN_TIMEOUT_COUNT       														= 1399, //14us timer, 1400 for 100MHZ reconfig clock, 3500 for 250MHz clock
+	 parameter ENABLE_SOFT_CWBIN         														= 0,
+    parameter           NO_OF_PORTS                                             = 1,
+    parameter           NUM_CLKS                                                = $NUM_CLKS, // Valid values are { 1, 2, 4}
+    parameter           PREAMBLE_PORTS                                          = 1,
+    parameter           PACKING_EN                                              = 0,
+    parameter           BASE_SEC_ENABLE                                         = 0,
+
+    // SIP PTP Parameters
+    parameter           ENABLE_PTP                                              = 0,
+    parameter           PTP_ACC_MODE                                            = 0,
+    parameter           PTP_FP_WIDTH                                            = 8,
+    parameter           NUM_400GE_PORT                                          = 0,
+    parameter           NUM_200GE_PORT                                          = 0,
+    parameter           NUM_100GE_PORT                                          = 0,
+    parameter           NUM_50GE_PORT                                           = 0,
+    parameter           NUM_25GE_PORT                                           = 0,
+    parameter           RCFG_GRP                                                = "", // Internal use only, user please DO NOT MODIFY
+    parameter           PTP_MRIP_DEBUG                                          = 0, // Internal use only, user please DO NOT MODIFY
+    parameter           ENABLE_PTP_DEBUG                                        = 0, // Internal use only, user please DO NOT MODIFY
+    parameter           PKT_CYL                                                 = EHIP_RATE=="400G" ? 2 : 1, // Internal use only, user please DO NOT MODIFY
+    
+@@if {$TEST_SIP == 0} {  
+    parameter           FCS_ERROR                                               = 0, // 
+@@ } else {
+    parameter           FCS_ERROR                                               = 0 // 
+@@ }
+    
+@@if {$TEST_SIP == 0} {
+    // HIP Parameters
+	
+    parameter          bb_f_ehip_aib2_rx_st_clk_en                              = "AIB2_RX_ST_CLK_EN_PLL0_DIV2", 
+    parameter          bb_f_ehip_aib2_tx_st_clk_en                              = "AIB2_TX_ST_CLK_EN_PLL0_DIV2", 
+    parameter          bb_f_ehip_aib3_rx_st_clk_en                              = "AIB3_RX_ST_CLK_EN_RX_USER_CLK1",
+    parameter          bb_f_ehip_aib3_tx_st_clk_en                              = "AIB3_TX_ST_CLK_EN_TX_USER_CLK1",
+    parameter          bb_f_ehip_aibif_data_valid                               = "AIBIF_DATA_VALID_25G", 
+    parameter          bb_f_ehip_dl_enable                                      = "DISABLE", // PTP parameters
+    parameter          bb_f_ehip_e400g_ptp0_aib2_div2_clk                       = "__BB_DONT_CARE__", // PTP parameters
+    parameter          bb_f_ehip_e400g_ptp1_aib2_div2_clk                       = "__BB_DONT_CARE__", // PTP parameters
+    parameter          bb_f_ehip_duplex_mode                                    = "DUPLEX_MODE_FULL_DUPLEX", 
+    parameter          bb_f_ehip_fec_mode                                       = "FEC_MODE_DISABLED", 
+    parameter          bb_f_ehip_fec_spec                                       = "FEC_SPEC_DISABLED", 
+    parameter          bb_f_ehip_frac_size                                      = "F25G", 
+    parameter          bb_f_ehip_fec_clk_src                                    = "FEC_CLK_SRC_PLL0",
+    parameter          bb_f_ehip_fec_error                                      = "FEC_ERROR_ON",
+    parameter          bb_f_ehip_lpbk_mode                                      = "LPBK_MODE_DISABLED",
+    parameter          bb_f_ehip_mac_disable_link_fault_rf                      = "DISABLE",
+    parameter          bb_f_ehip_mac_flow_control                               = "MAC_NONE", 
+    parameter	       bb_f_ehip_mac_flow_control_sip                           = "NO",
+    parameter          bb_f_ehip_mac_flow_control_holdoff_mode                  = "MAC_PER_QUEUE", 
+    parameter          bb_f_ehip_mac_force_link_fault_rf                        = "DISABLE",
+    parameter          bb_f_ehip_mac_enforce_max_frame_size                     = "DISABLE",
+    parameter          bb_f_ehip_mac_forward_rx_pause_requests                  = "DISABLE",
+    parameter          bb_f_ehip_mac_forward_rx_pause_requests_int              = "DISABLE",
+    parameter  [15:0]  bb_f_ehip_mac_holdoff_quanta                             = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_ipg_removed_per_am_period                  = 16'd8,
+    parameter          bb_f_ehip_mac_keep_rx_crc                                = "ENABLE", 
+    parameter          bb_f_ehip_mac_link_fault_mode                            = "MAC_LF_OFF", 
+    parameter  [15:0]  bb_f_ehip_mac_pause_quanta                               = 16'd65535, 
+    parameter          bb_f_ehip_mac_remove_pads                                = "DISABLE", 
+    parameter          bb_f_ehip_mac_rx_length_checking                         = "ENABLE", 
+    parameter          bb_f_ehip_mac_rx_preamble_passthrough                    = "DISABLE", 
+    parameter          bb_f_ehip_mac_rx_vlan_detection                          = "ENABLE", 
+    parameter          bb_f_ehip_mac_rxcrc_covers_preamble                      = "DISABLE", 
+    parameter          bb_f_ehip_mac_source_address_insertion                   = "DISABLE", 
+    parameter          bb_f_ehip_mac_strict_preamble_checking                   = "DISABLE", 
+    parameter          bb_f_ehip_mac_strict_sfd_checking                        = "DISABLE", 
+    parameter          bb_f_ehip_mac_tx_mac_data_flow                           = "ENABLE", 
+    parameter          bb_f_ehip_mac_tx_preamble_passthrough                    = "DISABLE", 
+    parameter          bb_f_ehip_mac_tx_vlan_detection                          = "ENABLE", 
+    parameter          bb_f_ehip_mac_txcrc_covers_preamble                      = "DISABLE", 
+    parameter          bb_f_ehip_mac_mode                                       = "MAC_MODE_IEEE", 
+    parameter          bb_f_ehip_pcs_ber_mon_mode                               = "PCS_BER_MON_MODE_25G", 
+    parameter          bb_f_ehip_tx_pmadirect_single_width                      = "FALSE", 
+    parameter          bb_f_ehip_rx_pmadirect_single_width                      = "FALSE", 
+    parameter          bb_f_ehip_ptp_mode                                       = "PTP_MODE_DISABLED", // PTP parameters
+    parameter          bb_f_ehip_mac_tx_ptp_phy_lane_num                        = "__BB_DONT_CARE__", // PTP parameters
+    parameter          bb_f_ehip_mac_rx_ptp_phy_lane_num                        = "__BB_DONT_CARE__", // PTP parameters
+    parameter          bb_f_ehip_rx_aib_if_fifo_mode                            = "RX_AIB_IF_FIFO_MODE_PHASECOMP", 
+    parameter          dec_bb_f_ehip_rx_datarate                                = "2500000000", 
+    parameter          bb_f_ehip_rx_en                                          = "TRUE", 
+    parameter          bb_f_ehip_rx_excvr_gb_ratio_mode                         = "RX_EXCVR_GB_RATIO_MODE_32_33",
+    parameter          bb_f_ehip_rx_excvr_if_fifo_mode                          = "RX_EXCVR_IF_FIFO_MODE_ELASTIC",
+    parameter          bb_f_ehip_rx_fec_enable                                  = "RX_FEC_ENABLE_DISABLED", 
+    parameter          bb_f_ehip_rx_pcs_mode                                    = "RX_PCS_MODE_IEEE", 
+    parameter          bb_f_ehip_rx_primary_use                                 = "RX_PRIMARY_USE_ETHERNET", 
+    parameter  [4:0]   bb_f_ehip_rx_total_xcvr                                  = 1, 
+    parameter          bb_f_ehip_rx_xcvr_width                                  = "RX_XCVR_WIDTH_32", 
+    parameter          bb_f_ehip_silicon_rev                                    = "gdra", 
+    parameter          bb_f_ehip_speed_map                                      = "SPEED_MAP_MAP_25G", 
+    parameter          bb_f_ehip_tx_aib_if_fifo_mode                            = "TX_AIB_IF_FIFO_MODE_PHASECOMP", 
+    parameter          dec_bb_f_ehip_tx_datarate                                = "2500000000", 
+    parameter          bb_f_ehip_sim_mode                                       = "ENABLE",
+    parameter          bb_f_ehip_sup_mode                                       = "SUP_MODE_USER_MODE",
+    parameter          bb_f_ehip_sys_clk_src                                    = "SYS_CLK_SRC_PLL0",
+    parameter          bb_f_ehip_topology                                       = "UX16E400GPTP_XX_DISABLED_XX_DISABLED",
+    parameter          bb_f_ehip_tx_en                                          = "TRUE", 
+    parameter          bb_f_ehip_tx_excvr_gb_ratio_mode                         = "TX_EXCVR_GB_RATIO_MODE_32_33",
+    parameter          bb_f_ehip_tx_excvr_if_fifo_mode                          = "TX_EXCVR_IF_FIFO_MODE_ELASTIC", 
+    parameter          bb_f_ehip_tx_fec_enable                                  = "TX_FEC_ENABLE_DISABLED", 
+    parameter          bb_f_ehip_tx_pcs_mode                                    = "TX_PCS_MODE_IEEE", 
+    parameter          bb_f_ehip_tx_primary_use                                 = "TX_PRIMARY_USE_ETHERNET", 
+    parameter  [4:0]   bb_f_ehip_tx_total_xcvr                                  = 1, 
+    parameter          bb_f_ehip_tx_xcvr_width                                  = "TX_XCVR_WIDTH_32",
+    parameter          bb_f_ehip_tx_word_clk_hz                                 = 32'd805664063,
+    parameter          bb_f_ehip_rx_word_clk_hz                                 = 32'd805664063,
+    parameter          bb_f_ehip_xcvr_mode                                      = "XCVR_MODE_NRZ",
+    parameter          bb_f_ehip_xcvr_type                                      = "XCVR_TYPE_UX",
+    	parameter         bb_f_ehip_mac_use_am_insert 			= "DISABLE",
+	parameter         bb_f_ehip_is_ptp_part_of_reconfig 			= "DISABLE",
+	parameter         bb_f_ehip_is_fec_part_of_reconfig  			= "DISABLE",
+
+    parameter  [15:0]  bb_f_ehip_mac_pfc_holdoff_quanta_0                       = 16'd65535, 
+    parameter  [15:0]  bb_f_ehip_mac_pfc_holdoff_quanta_1                       = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_holdoff_quanta_2                       = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_holdoff_quanta_3                       = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_holdoff_quanta_4                       = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_holdoff_quanta_5                       = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_holdoff_quanta_6                       = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_holdoff_quanta_7                       = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_pause_quanta_0                         = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_pause_quanta_1                         = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_pause_quanta_2                         = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_pause_quanta_3                         = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_pause_quanta_4                         = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_pause_quanta_5                         = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_pause_quanta_6                         = 16'd65535,
+    parameter  [15:0]  bb_f_ehip_mac_pfc_pause_quanta_7                         = 16'd65535,
+    parameter  [8:0]   bb_f_ehip_mac_request_tx_pause                           = 9'd0,
+    parameter  [15:0]  bb_f_ehip_mac_rx_max_frame_size                          = 16'd1518,
+    parameter          bb_f_ehip_mac_rx_pause_daddr                             = "1652522221569",
+    parameter          bb_f_ehip_mac_tx_ipg_size                                = "MAC_IPG_12",
+    parameter  [15:0]  bb_f_ehip_mac_tx_max_frame_size                          = 16'd1518,
+    parameter          bb_f_ehip_mac_tx_pause_daddr                             = "1652522221569", 
+    parameter          bb_f_ehip_mac_tx_pause_saddr                             = "247393538562781", 
+    parameter          bb_f_ehip_mac_txmac_saddr                                = "73588229205", 
+    parameter  [15:0]  bb_f_ehip_mac_uniform_holdoff_quanta                     = 16'd1518,
+    parameter          bb_f_ehip_fec_802p3ck                                    = "disable",
+    parameter  [17:0]  bb_f_ehip_q_dl_cfg_rxbit_rollover_attr                   = 18'd143934,
+
+    parameter         bb_f_ux_cdr_clkdiv_en                                  = "DISABLE",
+    parameter   bb_f_ux_cdr_f_postdiv_hz                               = 36'd390625000, 
+    parameter         bb_f_ux_cdr_postdiv_counter                            = 33, 
+    parameter         bb_f_ux_cdr_postdiv_fractional_en                      = "DISABLE", 
+    parameter         bb_f_ux_cdr_ppm_driftcount                             = 1024, 
+    parameter         bb_f_ux_master_pll_pair_mode                           = "FALSE"                               , 
+    parameter         bb_f_ux_core_pll                                       = "CORE_PLL_DISABLED"                   , 
+    parameter         bb_f_ux_dl_enable                                      = "DISABLE"                             , 
+
+    parameter         bb_f_ux_enable_port_control_of_cdr_ltr_ltd             = "DISABLE"                             ,
+    parameter         bb_f_ux_enable_static_refclk_network                   = "FALSE"                               , 
+    parameter         bb_f_ux_engineered_link_mode                           = "DISABLE"                             , 
+    parameter         bb_f_ux_fec_used                                       = "FALSE"                  	     ,
+    parameter         bb_f_ux_flux_mode                                      = "FLUX_MODE_DISABLED"                  , 
+    parameter         bb_f_ux_force_cdr_ltd                                  = "DISABLE"                             , 
+    parameter         bb_f_ux_force_cdr_ltr                                  = "DISABLE"                             , 
+    parameter         bb_f_ux_force_refclk_power_to_specific_value           = "FORCE_REFCLK_POWER_TO_SPECIFIC_VALUE_NONE", 
+    parameter         bb_f_ux_full_quad_master_pll_mode                      = "FALSE"                               , 
+    parameter         bb_f_ux_loopback_mode                                  = "LOOPBACK_MODE_DISABLED"              , 
+    parameter         bb_f_ux_master_sup_mode                                = "MASTER_SUP_MODE_USER_MODE"           , 
+    parameter         bb_f_ux_prbs_gen_en                                    = "DISABLE"                             , 
+    parameter         bb_f_ux_prbs_mon_en                                    = "DISABLE"                             , 
+    parameter         bb_f_ux_q_dl_cfg_rx_lat_bit_for_async_attr             = 0                                     , 
+    parameter         bb_f_ux_q_dl_cfg_rxbit_cntr_pma_attr                   = "DISABLE"                             , 
+    parameter         bb_f_ux_q_dl_cfg_rxbit_rollover_attr                   = 0                                     , 
+    parameter         bb_f_ux_quad_pcie_mode                                 = "FALSE"                               , 
+    parameter         bb_f_ux_rx_adapt_mode                                  = "UX0_RX_ADAPT_MODE_NO_EQ"             , 
+    parameter         bb_f_ux_rx_bond_size                                   = "RX_BOND_SIZE_DISABLED"               , 
+    parameter         dec_bb_f_ux_rx_line_rate_bps                           = "25781250000"                         , 
+    parameter         bb_f_ux_rx_over_sample                                 = "__BB_DONT_CARE__"                    , 
+    parameter         bb_f_ux_rx_pam4_graycode_en                            = "DISABLE"                             , 
+    parameter         bb_f_ux_rx_pam4_precode_en                             = "DISABLE"                             , 
+    parameter         bb_f_ux_rx_protocol                                    = "RX_PROTOCOL_FEC_PCS_MAC"             , 
+    parameter         bb_f_ux_tx_protocol_hard_pcie_lowloss                  = "DISABLE"                             , 
+    parameter         bb_f_ux_rx_protocol_hard_pcie_lowloss                  = "DISABLE"                             , 
+    parameter         bb_f_ux_rx_user_clk_en                                 = "ENABLE"                              , 
+    parameter         bb_f_ux_rx_width                                       = "RX_WIDTH_32"                         , 
+    parameter         bb_f_ux_silicon_rev                                    = "10nm6agdra"                          , 
+    parameter         bb_f_ux_squelch_detect                                 = "__BB_DONT_CARE__"                    , 
+    parameter         bb_f_ux_sr_custom                                      = "DISABLE"                             , 
+    parameter         bb_f_ux_sup_mode                                       = "sup_mode_user_mode"                  , 
+    parameter         bb_f_ux_synth_lc_fast_f_rx_postdiv_hz                  = 0                                     , 
+    parameter         bb_f_ux_synth_lc_fast_f_tx_postdiv_hz                  = 390625000                             , 
+    parameter         bb_f_ux_synth_lc_fast_rx_postdiv_counter               = 12                                    , 
+    parameter         bb_f_ux_synth_lc_fast_tx_postdiv_counter               = 14                                    , 
+    parameter         bb_f_ux_synth_lc_fast_tx_postdiv_fractional_en                  = "DISABLE"                             , 
+    parameter         bb_f_ux_synth_lc_med_f_rx_postdiv_hz                   = 0                                     , 
+    parameter         bb_f_ux_synth_lc_med_f_tx_postdiv_hz                   = 0                                     , 
+    parameter         bb_f_ux_synth_lc_med_rx_postdiv_counter                = 0                                     , 
+    parameter         bb_f_ux_synth_lc_med_tx_postdiv_counter                = 0                                     , 
+    parameter         bb_f_ux_synth_lc_med_tx_postdiv_fractional_en                   = "DISABLE"                             , 
+    parameter         bb_f_ux_synth_lc_slow_f_rx_postdiv_hz                  = 0                                     , 
+    parameter         bb_f_ux_synth_lc_slow_f_tx_postdiv_hz                  = 0                                     , 
+    parameter         bb_f_ux_synth_lc_slow_rx_postdiv_counter               = 93                                    , 
+    parameter         bb_f_ux_synth_lc_slow_tx_postdiv_counter               = 98                                    , 
+    parameter         bb_f_ux_synth_lc_slow_tx_postdiv_fractional_en                  = "DISABLE"                             , 
+    parameter         bb_f_ux_tx_bond_size                                   = "TX_BOND_SIZE_1"                      , 
+    parameter         dec_bb_f_ux_tx_line_rate_bps                           = "25781250000"                         ,  
+    parameter         bb_f_ux_tx_over_sample                                 = "__BB_DONT_CARE__"                    , 
+    parameter         bb_f_ux_tx_pam4_graycode_en                            = "DISABLE"                             , 
+    parameter         bb_f_ux_tx_pam4_precode_en                             = "DISABLE"                             , 
+    parameter         bb_f_ux_tx_protocol                                    = "TX_PROTOCOL_FEC_PCS_MAC"             , 
+    parameter         bb_f_ux_tx_user_clk1_en                                = "ENABLE"                              , 
+    parameter         bb_f_ux_tx_user_clk1_mux                               = "TX_USER_CLK1_MUX_FAST"               , 
+    parameter         bb_f_ux_tx_user_clk2_en                                = "ENABLE"                              , 
+    parameter         bb_f_ux_tx_user_clk2_mux                               = "TX_USER_CLK2_MUX_FAST"               , 
+    parameter         bb_f_ux_tx_width                                       = "TX_WIDTH_32"                         , 
+    parameter         bb_f_ux_txrx_channel_operation                         = "TXRX_CHANNEL_OPERATION_FULL_DUPLEX"  , 
+    parameter         bb_f_ux_txrx_line_encoding_type                        = "TXRX_LINE_ENCODING_TYPE_NRZ"         , 
+    parameter         bb_f_ux_txrx_xcvr_speed_bucket                         = "TXRX_XCVR_SPEED_BUCKET_25G"          ,  
+    parameter         bb_f_ux_ux_q_ckmux_cpu_attr                            = "CKMUX_CPU_AVMM"                     ,
+    parameter         bb_f_ux_ux_q_e_rx_dp_pipe_attr                         = "E_RX_DP_NO_PIPE"                     ,
+    parameter         bb_f_ux_ux_q_e_tx_dp_pipe_attr                         = "E_TX_DP_NO_PIPE"                     ,
+    parameter         bb_f_ux_ux_q_i_pll0_hz                                 = 0                                     ,
+	    parameter         bb_f_ux_sim_mode                    = "DISABLE"                             ,  
+		
+		parameter      bb_f_ux_q_10_to_1_ckmux_0_en_attr 			= 	"CKMUX0_10_TO_1_EN_FALSE"				,
+		parameter      bb_f_ux_q_10_to_1_ckmux_1_en_attr 			= 	"CKMUX1_10_TO_1_EN_FALSE"				,
+
+    parameter         bb_f_ux_cdr_bw_sel                                     = "CDR_BW_SEL_LOW"                      , 
+    parameter         bb_f_ux_cdr_f_ref_hz                                   = 36'd156250000, 
+    parameter         bb_f_ux_cdr_f_out_hz                                   = "0"                                   , 
+    parameter         bb_f_ux_cdr_f_vco_hz                                   = "0"                                   ,
+    parameter         bb_f_ux_cdr_l_counter                                  = 0                                     , 
+    parameter         bb_f_ux_cdr_m_counter                                  = 0                                     ,
+    parameter         bb_f_ux_cdr_n_counter                                  = 0                                     , 
+    parameter         bb_f_ux_synth_lc_fast_f_out_hz                         = "0"                                   ,
+    parameter         bb_f_ux_synth_lc_fast_f_vco_hz                         = "0"                                   ,
+    parameter         bb_f_ux_synth_lc_fast_f_ref_hz                         = 0                                     , 
+    parameter         bb_f_ux_synth_lc_fast_fractional_en                    = "DISABLE"                             ,  
+    parameter         bb_f_ux_synth_lc_fast_k_counter                        = 0                                     ,  
+    parameter         bb_f_ux_synth_lc_fast_l_counter                        = 0                                     ,  
+    parameter         bb_f_ux_synth_lc_fast_m_counter                        = 0                                     ,  
+    parameter         bb_f_ux_synth_lc_fast_n_counter                        = 0                                     ,  
+    parameter         bb_f_ux_synth_lc_fast_primary_use                      = "SYNTH_LC_FAST_PRIMARY_USE_DISABLED"  , 
+    parameter         bb_f_ux_synth_lc_med_f_out_hz                          = "0"                                   ,
+    parameter         bb_f_ux_synth_lc_med_f_vco_hz                          = "0"                                   ,
+    parameter         bb_f_ux_synth_lc_med_f_ref_hz                          = 0                                     ,
+    parameter         bb_f_ux_synth_lc_med_fractional_en                     = "DISABLE"                             ,
+    parameter         bb_f_ux_synth_lc_med_k_counter                         = 0                                     ,
+    parameter         bb_f_ux_synth_lc_med_l_counter                         = 0                                     ,
+    parameter         bb_f_ux_synth_lc_med_m_counter                         = 0                                     ,
+    parameter         bb_f_ux_synth_lc_med_n_counter                         = 0                                     ,
+    parameter         bb_f_ux_synth_lc_med_primary_use                       = "SYNTH_LC_MED_PRIMARY_USE_DISABLED"   , 
+    parameter         bb_f_ux_synth_lc_slow_f_out_hz                         = "0"                                   ,
+    parameter         bb_f_ux_synth_lc_slow_f_vco_hz                         = "0"                                   ,
+    parameter         bb_f_ux_synth_lc_slow_f_ref_hz                         = 0                                     ,
+    parameter         bb_f_ux_synth_lc_slow_fractional_en                    = "DISABLE"                             ,
+    parameter         bb_f_ux_synth_lc_slow_k_counter                        = 0                                     ,
+    parameter         bb_f_ux_synth_lc_slow_l_counter                        = 0                                     ,
+    parameter         bb_f_ux_synth_lc_slow_m_counter                        = 0                                     ,
+    parameter         bb_f_ux_synth_lc_slow_n_counter                        = 0                                     ,
+    parameter         bb_f_ux_synth_lc_slow_primary_use                      = "SYNTH_LC_SLOW_PRIMARY_USE_DISABLED"  ,
+    parameter         bb_f_ux_tx_pll                                         = "TX_PLL_DISABLED"                     , 
+    parameter         bb_f_ux_tx_pll_bw_sel                                  = "TX_PLL_BW_SEL_LOW"                   ,
+	  parameter          bb_f_ux_enable_an_lt_support                             =  "FALSE",
+    parameter          bb_f_ux_primary_use                                      =  "PRIMARY_USE_STANDARD",
+    parameter          bb_f_ux_tx_spread_spectrum_en                            =  "DISABLE",
+    parameter          bb_f_ux_tx_tuning_hint                                   =  "TX_TUNING_HINT_DISABLED",
+    parameter          bb_f_ux_rx_tuning_hint                                   =  "RX_TUNING_HINT_DISABLED",
+    parameter          bb_f_ux_synth_lc_fb_div_n_frac_mode                      =  1,
+    parameter          bb_f_ux_tx_fb_div_emb_mult_counter                      =  1,
+// PFE_IPSE_SYNC up changes : Commented out parameter (HIGH & MED) TBD
+    parameter         bb_f_ux_dpma_refclk_source                             = "DPMA_REFCLK_SOURCE_RX"               ,
+    parameter          bb_f_ux_tx_invert_p_and_n                      = "DISABLE",
+    parameter          bb_f_ux_rx_invert_p_and_n                      = "DISABLE",
+    parameter          bb_f_ux_rx_fw_clearing_regsiter_attr           = "ENABLE",
+    parameter          bb_f_ux_rx_bypass_on_chip_ac_cap               = "DISABLE",
+    parameter          bb_f_ux_rx_vcm_greater_than_0p35v_with_bypass_on_chip_ac_cap = "DISABLE",
+
+//Barak BB parameters
+    parameter          bb_f_bk_package_type                       = "HIGHEND",
+    parameter          bb_f_bk_bk_pll_fullrate                    = "FALSE",
+    parameter          bb_f_bk_an_mode                            = "AN_MODE_DIS",
+    parameter          bb_f_bk_bk_lnx_txovf_rxbdstb_inten         = 0,
+    parameter          bb_f_bk_bk_lnx_txudf_pldrstb_inten         = 0,
+    parameter          bb_f_bk_bk_dl_enable                       = "DETLAT_DIS",
+    parameter          bb_f_bk_bk_rx_lat_bit_for_async            = 0,
+    parameter          bb_f_bk_bk_rxbit_rollover                  = 0,
+    parameter          bb_f_bk_bk_rxbit_cntr_pma                  = "RXBIT_CNTR_PMADIR_DIS",
+    parameter          bb_f_bk_bk_en_rxdat_profile                = "RXDAT_PROF_EN",
+    parameter          bb_f_bk_bk_rx_bdst_rcon_en                 = "RX_BADST_RCON_DIS",
+    parameter          bb_f_bk_bk_rx_ppmd_rcon_en                 = "RX_PPMD_BADST_RCON_DIS",
+    parameter          bb_f_bk_bk_tx_lnx_ovf_inten_dirsignal      = 0,
+    parameter          bb_f_bk_bk_tx_lnx_rxbadst_inten_dirsignal  = 0,
+    parameter          bb_f_bk_bk_tx_lnx_udf_inten_dirsignal      = 0,
+    parameter          bb_f_bk_bk_sel_tx_user_data                = "TX_USRDATA_DIS",
+    parameter          bb_f_bk_bk_tx_usr_data_0                   = 0,
+    parameter          bb_f_bk_bk_tx_usr_data_1                   = 0,
+    parameter          bb_f_bk_bk_tx_usr_data_2                   = 0,
+    parameter          bb_f_bk_bk_tx_usr_data_3                   = 0,
+    parameter          bb_f_bk_engineered_link_mode               = "DISABLE",
+    parameter          bb_f_bk_loopback_mode                      = "LPBK_DISABLED",
+    parameter          bb_f_bk_pam4_rxgrey_code                   = "PAM4_RXGREY_IS_B4",
+    parameter          bb_f_bk_pll_n_counter                      = 3'h1,
+    parameter          bb_f_bk_pll_pcs3334_ratio                  = "DIV_33_BY_2",
+    parameter          bb_f_bk_pll_rx_pcs3334_ratio                  = "DIV_33_BY_2",
+    parameter          bb_f_bk_refclk_source_lane_pll             = "REF_TO_GND",
+    parameter          bb_f_bk_bk_car_tx_clk_src_sel              = "BK_CAR_TX_CLK_SRC_SEL_DISABLE",
+    parameter  [31:0]  bb_f_bk_rx_ber_cnt_limit_lsb               = 32'h0,
+    parameter  [31:0]  bb_f_bk_rx_ber_cnt_limit_msb               = 32'h0,
+    parameter  [31:0]  bb_f_bk_rx_ber_cnt_mask_0_31               = 32'h0,
+    parameter  [31:0]  bb_f_bk_rx_ber_cnt_mask_32_63              = 32'h0,
+    parameter  [31:0]  bb_f_bk_rx_ber_cnt_mask_64_95              = 32'h0,
+    parameter  [31:0]  bb_f_bk_rx_ber_cnt_mask_96_127             = 32'h0,
+    parameter          bb_f_bk_rx_prbs_common_en                  = "RX_PRBS_COMMON_EN_DISABLE",
+    parameter          bb_f_bk_rx_prbs_mode                       = "RX_PRBS_7",
+    parameter          bb_f_bk_rx_precode_en                      = "RX_PRECODE_DIS",
+    parameter          bb_f_bk_tx_prbs_en                         = "TX_PRBS_EN_DISABLE",
+    parameter          bb_f_bk_tx_prbs_mode                       = "TX_PRBS_7",
+    parameter          bb_f_bk_tx_precode_en                      = "TX_PRECODE_DIS",
+    parameter          bb_f_bk_sup_mode                           = "SUP_MODE_USER_MODE",
+    parameter          bb_f_bk_rx_user_clk1_en                    = "RX_USRCLK1_EN",
+    parameter          bb_f_bk_rx_user_clk1_sel                   = "RX_USRCLK1SEL_DIV3334",
+    parameter          bb_f_bk_rx_user_clk2_en                    = "RX_USRCLK2_EN",
+    parameter          bb_f_bk_rx_user_clk2_sel                   = "RX_USRCLK2SEL_DIV3334",
+    parameter          bb_f_bk_tx_bond_size                       = "TX_BOND_SIZE_1",
+    parameter          bb_f_bk_tx_line_rate                       = "25781250000",
+    parameter          bb_f_bk_tx_protocol                        = "TX_PROTOCOL_DISABLED",
+    parameter          bb_f_bk_tx_user_clk1_en                    = "TX_USRCLK1_EN",
+    parameter          bb_f_bk_tx_user_clk1_sel                   = "TX_USRCLK1SEL_DIV3334",
+    parameter          bb_f_bk_tx_user_clk2_en                    = "TX_USRCLK2_EN",
+    parameter          bb_f_bk_tx_user_clk2_sel                   = "TX_USRCLK2SEL_DIV3334",
+    parameter          bb_f_bk_txrx_line_encoding_type            = "TXRX_LINE_ENCODING_TYPE_NRZ",
+    parameter          bb_f_bk_txrx_xcvr_speed_bucket             = "TXRX_XCVR_SPEED_BUCKET_25G",
+    parameter          bb_f_bk_rx_invert_p_and_n                  = "RX_INVERT_PN_DIS",
+    parameter          bb_f_bk_tx_invert_p_and_n                  = "TX_INVERT_PN_DIS",
+    parameter	       bb_f_bk_silicon_rev                		  = "10nm6agdra",
+// New added for snap46
+    parameter          bb_f_bk_fec_used                           = "FALSE",
+	parameter          bb_f_bk_bk_seq0_enable                     = "SEQ0_EN",
+    parameter          bb_f_bk_bk_seq1_enable                     = "SEQ1_EN",
+    parameter          bb_f_bk_bk_seq2_enable                     = "SEQ2_EN",
+    parameter          bb_f_bk_bk_seq3_enable                     = "SEQ3_EN",
+    parameter          bb_f_bk_bk_seq4_enable                     = "SEQ4_EN",
+    parameter          bb_f_bk_bk_seq5_enable                     = "SEQ5_EN",
+    parameter          bb_f_bk_bk_seq6_enable                     = "SEQ6_EN",
+    parameter          bb_f_bk_bk_seq7_enable                     = "SEQ7_EN",
+    parameter          bb_f_bk_bk_seq8_enable                     = "SEQ8_EN",
+    parameter          bb_f_bk_bk_seq9_enable                     = "SEQ9_EN",
+    parameter          bb_f_bk_bk_seq10_enable                    = "SEQ10_EN",
+    parameter          bb_f_bk_bk_seq42_enable                    = "SEQ42_EN",
+    parameter          bb_f_bk_bk_seq43_enable                    = "SEQ43_EN",
+    parameter          bb_f_bk_bk_seq44_enable                    = "SEQ44_EN",
+    parameter          bb_f_bk_bk_seq45_enable                    = "SEQ45_EN",
+    parameter          bb_f_bk_bk_seq46_enable                    = "SEQ46_EN",
+    parameter          bb_f_bk_bk_seq31_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq31_data                      = 0,          
+    parameter          bb_f_bk_bk_seq31_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq31_rdwrb                     = "SEQ31_WR", 
+    parameter          bb_f_bk_bk_seq32_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq32_data                      = 0,          
+    parameter          bb_f_bk_bk_seq32_enable                    = "SEQ32_DIS",
+    parameter          bb_f_bk_bk_seq32_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq32_rdwrb                     = "SEQ32_WR", 
+    parameter          bb_f_bk_bk_seq33_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq33_data                      = 0,          
+    parameter          bb_f_bk_bk_seq33_enable                    = "SEQ33_DIS",
+    parameter          bb_f_bk_bk_seq33_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq33_rdwrb                     = "SEQ33_WR", 
+    parameter          bb_f_bk_bk_seq34_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq34_data                      = 0,          
+    parameter          bb_f_bk_bk_seq34_enable                    = "SEQ34_DIS",
+    parameter          bb_f_bk_bk_seq34_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq34_rdwrb                     = "SEQ34_WR", 
+    parameter          bb_f_bk_bk_seq35_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq35_data                      = 0,          
+    parameter          bb_f_bk_bk_seq35_enable                    = "SEQ35_DIS",
+    parameter          bb_f_bk_bk_seq35_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq35_rdwrb                     = "SEQ35_WR", 
+    parameter          bb_f_bk_bk_seq36_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq36_data                      = 0,          
+    parameter          bb_f_bk_bk_seq36_enable                    = "SEQ36_DIS",
+    parameter          bb_f_bk_bk_seq36_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq36_rdwrb                     = "SEQ36_WR", 
+    parameter          bb_f_bk_bk_seq37_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq37_data                      = 0,          
+    parameter          bb_f_bk_bk_seq37_enable                    = "SEQ37_DIS",
+    parameter          bb_f_bk_bk_seq37_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq37_rdwrb                     = "SEQ37_WR", 
+    parameter          bb_f_bk_bk_seq38_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq38_data                      = 0,          
+    parameter          bb_f_bk_bk_seq38_enable                    = "SEQ38_DIS",
+    parameter          bb_f_bk_bk_seq38_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq38_rdwrb                     = "SEQ38_WR", 
+    parameter          bb_f_bk_bk_seq39_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq39_data                      = 0,          
+    parameter          bb_f_bk_bk_seq39_enable                    = "SEQ39_DIS",
+    parameter          bb_f_bk_bk_seq39_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq39_rdwrb                     = "SEQ39_WR", 
+    parameter          bb_f_bk_bk_seq40_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq40_data                      = 0,          
+    parameter          bb_f_bk_bk_seq40_enable                    = "SEQ40_DIS",
+    parameter          bb_f_bk_bk_seq40_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq40_rdwrb                     = "SEQ40_WR", 
+    parameter          bb_f_bk_bk_seq41_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq41_data                      = 0,          
+    parameter          bb_f_bk_bk_seq41_enable                    = "SEQ41_DIS",
+    parameter          bb_f_bk_bk_seq41_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq41_rdwrb                     = "SEQ41_WR", 
+    parameter          bb_f_bk_bk_seq59_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq59_data                      = 0,          
+    parameter          bb_f_bk_bk_seq59_enable                    = "SEQ59_DIS",
+    parameter          bb_f_bk_bk_seq59_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq59_rdwrb                     = "SEQ59_WR", 
+    parameter          bb_f_bk_bk_seq60_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq60_data                      = 0,          
+    parameter          bb_f_bk_bk_seq60_enable                    = "SEQ60_DIS",
+    parameter          bb_f_bk_bk_seq60_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq60_rdwrb                     = "SEQ60_WR", 
+    parameter          bb_f_bk_bk_seq61_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq61_data                      = 0,          
+    parameter          bb_f_bk_bk_seq61_enable                    = "SEQ61_DIS",
+    parameter          bb_f_bk_bk_seq61_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq61_rdwrb                     = "SEQ61_WR", 
+    parameter          bb_f_bk_bk_seq62_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq62_data                      = 0,          
+    parameter          bb_f_bk_bk_seq62_enable                    = "SEQ62_DIS",
+    parameter          bb_f_bk_bk_seq62_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq62_rdwrb                     = "SEQ62_WR", 
+    parameter          bb_f_bk_bk_seq63_addr                      = 0,          
+    parameter          bb_f_bk_bk_seq63_data                      = 0,          
+    parameter          bb_f_bk_bk_seq63_enable                    = "SEQ63_DIS",
+    parameter          bb_f_bk_bk_seq63_rdata_unmask              = 0,          
+    parameter          bb_f_bk_bk_seq63_rdwrb                     = "SEQ63_WR", 
+// PFE_IPSE_SYNC up changes : Commented out parameter (HIGH & MED) TBD
+    parameter          bb_f_bk_bk_bitprog_update_cfg                            = "BK_BITPROG_NOUPDATE_CFG",
+// PFE_IPSE_SYNC up changes : Updated value (HIGH & MED) TBD
+    parameter          bb_f_bk_bti_protected                                    = "__BB_DONT_CARE__",
+ 
+    parameter          bb_f_aib_aibadapt_tx_loopback_mode                       = "AIBADAPT_TX_LOOPBACK_DISABLE",
+    parameter          bb_f_aib_aibadapt_tx_sup_mode                            = "AIBADAPT_TX_USER_MODE",
+    parameter          bb_f_aib_silicon_rev                                     = "gdra",
+	parameter          bb_f_aib_tx_user_clk_hz                                  = 32'd402832031,
+	parameter          bb_f_aib_rx_user_clk_hz                                  = 32'd402832031,
+	parameter          bb_f_aib_hssi_tx_transfer_clk_hz                         = 32'd805664062,
+	parameter          bb_f_aib_hssi_rx_transfer_clk_hz                         = 32'd805664062,
+    parameter          bb_f_aib_aibadapt_rx_rx_datapath_tb_sel                  = "AIBADAPT_RX_PCS_CHNL_TB",
+    parameter          bb_f_aib_aibadapt_rx_rx_user_clk_sel                     = "AIBADAPT_RX_RX_USER_CLK_EHIP",
+	parameter          bb_f_aib_aibadapt_tx_tx_user_clk_sel                     = "AIBADAPT_TX_TX_USER_CLK_EHIP",
+    parameter          bb_m_aib_rx_silicon_rev                                  = "gdra",
+    parameter          bb_m_aib_rx_aib_dllstr_align_st_dftmuxsel = "AIB_DLLSTR_ALIGN_ST_DFTMUXSEL_SETTING0", //setting 0 or 1
+    parameter          bb_m_aib_rx_dft_hssitestip_dll_dcc_en     = "DISABLE_DFT",
+    parameter          bb_m_aib_rx_op_mode                       = "RX_DLL_ENABLE",
+    parameter          bb_m_aib_rx_redundancy_en                 = "DISABLE",
+    parameter          bb_m_aib_rx_sup_mode                      = "USER_MODE",  //user or engineering?
+
+    parameter          bb_m_aib_tx_silicon_rev                                  = "gdra",
+    parameter          bb_m_aib_tx_aib_tx_dcc_dft            = "AIB_TX_DCC_DFT_DISABLE",
+    parameter          bb_m_aib_tx_aib_tx_dcc_dft_sel        = "AIB_TX_DCC_DFT_MODE1", //mode0 or 1
+    parameter          bb_m_aib_tx_aib_tx_dcc_st_dftmuxsel   = "AIB_TX_DCC_ST_DFTMUXSEL_SETTING1",
+    parameter          bb_m_aib_tx_dfd_dll_dcc_en            = "DISABLE_DFD",
+    parameter          bb_m_aib_tx_dft_hssitestip_dll_dcc_en = "DISABLE_DFT",
+    parameter          bb_m_aib_tx_op_mode                   = "TX_DCC_ENABLE",
+    parameter          bb_m_aib_tx_redundancy_en             = "DISABLE",
+    parameter          bb_m_aib_tx_sup_mode                  = "USER_MODE",
+
+    parameter          bb_m_hdpldadapt_rx_hdpldadapt_rx_chnl_fifo_mode          = "HDPLDADAPT_RX_CHNL_PHASE_COMP",
+    parameter          bb_m_hdpldadapt_rx_hdpldadapt_rx_chnl_fifo_width         = "HDPLDADAPT_RX_CHNL_FIFO_SINGLE_WIDTH",
+    parameter          bb_m_hdpldadapt_rx_silicon_rev                           = "fm6",
+    parameter bb_m_hdpldadapt_rx_fifo_mode                             = "PHASE_COMP",
+    parameter bb_m_hdpldadapt_rx_fifo_width                            = "FIFO_DOUBLE_WIDTH",
+    parameter [30:0] bb_m_hdpldadapt_rx_hdpldadapt_aib_fabric_pld_pma_hclk_hz = 31'd447381676, //447381676 or 83498875
+    parameter [30:0] bb_m_hdpldadapt_rx_hdpldadapt_aib_fabric_rx_sr_clk_in_hz = 31'd900000000, //?
+    parameter [30:0] bb_m_hdpldadapt_rx_hdpldadapt_csr_clk_hz                 = 31'd117327492, //?
+    parameter [30:0] bb_m_hdpldadapt_rx_hdpldadapt_pld_rx_clk1_dcm_hz         = 31'd343212902, //?
+    parameter [30:0] bb_m_hdpldadapt_rx_hdpldadapt_pld_rx_clk1_rowclk_hz      = 31'd36266565, //?
+    parameter [30:0] bb_m_hdpldadapt_rx_hdpldadapt_pld_sclk1_rowclk_hz        = 31'd172957650,//?
+    parameter [30:0] bb_m_hdpldadapt_rx_hdpldadapt_pld_sclk2_rowclk_hz        = 31'd82506881,//?
+     parameter               bb_m_hdpldadapt_pld_avmm1_clk_rowclk_hz                 = 31'd100000000,
+     parameter               bb_m_hdpldadapt_pld_avmm2_clk_rowclk_hz                 = 31'd100000000,    
+    parameter bb_m_hdpldadapt_rx_hdpldadapt_speed_grade                = "HDPLDADAPT_DASH_2",//?
+    parameter bb_m_hdpldadapt_rx_pld_clk1_sel                          = "PLD_CLK1_DCM",//?
+    parameter bb_m_hdpldadapt_rx_rx_datapath_tb_sel                    = "TX_CHNL_TB",//?
+    parameter bb_m_hdpldadapt_rx_rx_fifo_power_mode                    = "FULL_WIDTH_PS_DW",
+    parameter [5:0] bb_m_hdpldadapt_rx_rxfifo_pempty                         = 6'd2,
+    parameter [5:0] bb_m_hdpldadapt_rx_rxfifo_pfull                          = 6'd10,
+
+    parameter          bb_m_hdpldadapt_tx_hdpldadapt_tx_chnl_fifo_mode          = "HDPLDADAPT_TX_CHNL_PHASE_COMP",
+    parameter          bb_m_hdpldadapt_tx_hdpldadapt_tx_chnl_fifo_width         = "HDPLDADAPT_TX_CHNL_FIFO_SINGLE_WIDTH",
+    parameter          bb_m_hdpldadapt_tx_silicon_rev                           = "fm6",
+    parameter bb_m_hdpldadapt_tx_duplex_mode                           = "ENABLE",
+    parameter bb_m_hdpldadapt_tx_fifo_mode                             = "PHASE_COMP",
+    parameter bb_m_hdpldadapt_tx_fifo_width                            = "FIFO_DOUBLE_WIDTH",
+    parameter [30:0] bb_m_hdpldadapt_tx_hdpldadapt_aib_fabric_pld_pma_hclk_hz = 31'd447381676,
+    parameter [30:0] bb_m_hdpldadapt_tx_hdpldadapt_aib_fabric_tx_sr_clk_in_hz = 31'd900000000,
+    parameter [30:0] bb_m_hdpldadapt_tx_hdpldadapt_csr_clk_hz                 = 31'd117327492,
+    parameter [30:0] bb_m_hdpldadapt_tx_hdpldadapt_pld_sclk1_rowclk_hz        = 31'd172957650,
+    parameter [30:0] bb_m_hdpldadapt_tx_hdpldadapt_pld_sclk2_rowclk_hz        = 31'd82506881,
+    parameter [30:0] bb_m_hdpldadapt_tx_hdpldadapt_pld_tx_clk1_dcm_hz         = 31'd210928531,
+    parameter [30:0] bb_m_hdpldadapt_tx_hdpldadapt_pld_tx_clk1_rowclk_hz      = 31'd46206966,
+    parameter [30:0] bb_m_hdpldadapt_tx_hdpldadapt_pld_tx_clk2_dcm_hz         = 31'd626545676,
+    parameter [30:0] bb_m_hdpldadapt_tx_hdpldadapt_pld_tx_clk2_rowclk_hz      = 31'd914095195,
+    parameter bb_m_hdpldadapt_tx_hdpldadapt_speed_grade                = "HDPLDADAPT_DASH_2",
+    parameter bb_m_hdpldadapt_tx_hip_osc_clk_scg_en                    = "DISABLE",
+    parameter bb_m_hdpldadapt_tx_pld_clk1_sel                          = "PLD_CLK1_ROWCLK",
+    parameter bb_m_hdpldadapt_tx_tx_datapath_tb_sel                    = "FRM_GEN_TB1",
+    parameter bb_m_hdpldadapt_tx_tx_fifo_power_mode                    = "FULL_WIDTH_PS_DW",
+    parameter [4:0] bb_m_hdpldadapt_tx_txfifo_pempty                         = 5'd2,
+    parameter [4:0] bb_m_hdpldadapt_tx_txfifo_pfull                          = 5'd10,
+
+    parameter          bb_m_hdpldadapt_avmm2_silicon_rev                        = "gdra"
+@@ } 
+  )
+  (
+
+    //Common ports 
+    input wire                                    i_clk_tx, // TX Avalon-ST interface clock, connect o_clk_pll to this.
+    input wire                                    i_clk_rx, // RX Avalon-ST interface clock, connect o_clk_pll to this.
+@@ if { $DL_MEASURE == 1 } {
+	 input wire                          i_sampling_clk,
+@@ }
+    input wire                                    i_clk_pll, // Drives internal clock (use only when PTP and ASYNC_ADAPTERS are both enabled) Connect selected o_clk_pll to this.
+	
+		
+    // HIP ports
+(* tile_ip_find_net *)    input  wire             i_clk_ref, //Native PHY IP reference clock
+(* tile_ip_find_net *)     input  wire [LANE_NUM-1:0]                    i_rx_serial,
+(* tile_ip_find_net *)     input  wire [LANE_NUM-1:0]                    i_rx_serial_n,
+(* tile_ip_find_net *)    output wire [LANE_NUM-1:0]                    o_tx_serial,
+(* tile_ip_find_net *)    output wire [LANE_NUM-1:0]                    o_tx_serial_n,
+(* tile_ip_find_net *)    input  wire             i_clk_sys, // Ethernet system clock
+@@  if {$enable_cdr_clkout == 1} { 
+  (* tile_ip_find_net *)    output wire             o_cdr_divclk, // cdr clock
+@@  }
+ 
+   // SIP ports
+    output wire                                   o_clk_pll, // this is /64 clock (402.83 MHz) EHIP system clock
+    output wire                                   o_clk_tx_div, //  this is /66 clock (390.625 MHz) EHIP system clock times 64/66
+    output wire                                   o_clk_rec_div64, // this is /64 clock (402.83 MHz), receovered clock
+    output wire                                   o_clk_rec_div, // this is /66 clock (390.625 MHz), receovered clock
+    
+    input  wire                                   i_tx_rst_n, //Resets the digital path (Ethernet MAC and Ethernet PCS).
+    input  wire                                   i_rx_rst_n, // Resets the RX digital path (Ethernet MAC, PCS).
+    input  wire                                   i_rst_n, // Resets TX/RX datapaths (MAC, PCS) and TX/RX transceiver & AIB.
+    output wire                                   o_rst_ack_n, // Acknowledge signal for i_rst_n.
+    output wire                                   o_tx_rst_ack_n, // Acknowledge signal for i_tx_rst_n.
+    output wire                                   o_rx_rst_ack_n, // Acknowledge signal for i_rx_rst_n.
+
+    //TX Segmented Interface
+    input wire  [64*DATA_WIDTH-1:0]               i_tx_mac_data,
+    input wire                                    i_tx_mac_valid,
+    input wire  [1*INFRAME-1:0]                   i_tx_mac_inframe,
+    input wire  [SEG_EOP_EMPTY-1:0]               i_tx_mac_eop_empty,
+    output wire                                   o_tx_mac_ready,
+    input wire  [1*SEG_ERROR-1:0]                 i_tx_mac_error,
+    input wire  [DATA_WIDTH-1:0]                   i_tx_mac_skip_crc,
+
+    //RX Segmented Interface
+    output wire  [64*DATA_WIDTH-1:0]              o_rx_mac_data,
+    output wire                                   o_rx_mac_valid,
+    output wire  [1*INFRAME-1:0]                  o_rx_mac_inframe,
+    output wire  [SEG_EOP_EMPTY-1:0]              o_rx_mac_eop_empty,
+    output wire  [2*SEG_ERROR-1:0]                o_rx_mac_error,
+    output wire [1*FCS_ERROR-1:0]                 o_rx_mac_fcs_error,
+    output wire [SEG_STATUS-1:0]                  o_rx_mac_status,
+
+    // TX AVST INTERFACE    
+    input wire [64*DATA_WIDTH-1:0]                i_tx_data, //Input data to the MAC. Bits 0 is the LSB.
+    input wire                                    i_tx_valid, //Indicates data TX data is valid. Must remain high throughout transmission of packet.
+    input wire                                    i_tx_startofpacket, //Start of packet (SOP). Asserted for one cycle at the beginning of frame.
+    input wire                                    i_tx_endofpacket, //End of packet (EOP). Asserted for one cycle on the last cycle of the frame.
+    output wire                                   o_tx_ready, // Indicates that the MAC is ready to accept new data.
+    input wire [EMPTY_BITS-1:0]                   i_tx_empty, // Indicates the number of empty bytes at the end of the frame. Must be valid when EOP is asserted.
+    input wire                                    i_tx_error, // A valid high on this signal aligned with an eop will cause the tx frame to be treated as an error.
+    input wire                                    i_tx_skip_crc, //If skip CRC, MAC will not add CRC i.e. no PAD and no source address insertion else TX MAC will add CRC.
+    input wire [64-1:0]                           i_tx_preamble, //To pass in the preamble data to the 50G MAC when its rate is set to 50G.
+
+    // RX AVST INTERFACE
+    output wire [64*DATA_WIDTH-1:0]               o_rx_data, // output data from the MAC, Bit 0 is LSB.
+    output wire                                   o_rx_valid, // Indicates data RX data, EOP, and SOP are valid.
+    output wire                                   o_rx_startofpacket, // Start of packet (SOP). Asserted for one cycle at the beginning of frame.
+    output wire                                   o_rx_endofpacket, // End of packet (EOP). Asserted for one cycle on the last cycle of the frame.
+    output wire [EMPTY_BITS-1:0]                  o_rx_empty, // Indicates the number of empty bytes at the end of the frame. Must be valid when EOP is asserted.
+    output wire [6-1:0]                           o_rx_error, // RX error bits asserted on the EOP cycle.[0] : malformed block, [1] : crc error, [2] : reserved, [3] : reserved, [4] : length error, [5] : reserved
+    output wire [64-1:0]                          o_rx_preamble, //To receive preamble data from MAC when its rate is set to 50G.  
+    output wire [40-1:0]                          o_rxstatus_data, //RX frame status information. Valid on EOP cycle.[0:31] : reserved, [32] : stacked vlan frame ,[33] : vlan frame ,[34] : control frame, [35] : pause frame, [36:38] : reserved, [39] : pfc frame
+    output wire                                   o_rxstatus_valid, //asserted to indicate that bits on o_rxstatus_data are valid.
+
+    //TX PCS Interface
+    input wire  [64*AIB_LANES-1:0]            i_tx_mii_d,
+    input wire  [8*AIB_LANES-1:0]             i_tx_mii_c,
+    input wire                                    i_tx_mii_valid,
+    output wire                                   o_tx_mii_ready,
+    input wire                                    i_tx_mii_am,
+
+    //RX PCS Interface
+    output wire  [64*AIB_LANES-1:0]            o_rx_mii_d,
+    output wire   [8*AIB_LANES-1:0]            o_rx_mii_c,
+    output wire                                   o_rx_mii_valid,
+    output wire                                   o_rx_mii_am_valid,
+  
+    //TX Interface
+    input wire [66*AIB_LANES-1:0]              i_tx_pcs66_d,
+    input wire                                    i_tx_pcs66_valid,
+    output wire                                   o_tx_pcs66_ready,
+    input wire                                    i_tx_pcs66_am,
+    //RX Interface
+    output wire [66*AIB_LANES-1:0]             o_rx_pcs66_d,
+    output wire                                   o_rx_pcs66_valid,
+    output wire                                   o_rx_pcs66_am_valid,
+
+
+	@@ if {$ENABLE_DL_GUI == 1} {
+	output wire [LANE_NUM-1:0]                           o_tx_dl_async_pulse,
+    output wire [LANE_NUM-1:0]                           o_rx_dl_async_pulse,
+    input wire [LANE_NUM-1:0]                           i_latency_sclk,
+    input wire [LANE_NUM-1:0]                           i_tx_dl_measure_sel,
+    input wire [LANE_NUM-1:0]                           i_rx_dl_measure_sel,
+@@ }
+
+    
+    // PTP clocks
+    input wire                                    i_clk_tx_tod,
+    input wire                                    i_clk_rx_tod,
+    input wire                                    i_clk_ptp_sample,
+    // PTP TOD
+    input wire                                    i_ptp_tx_tod_valid,
+    input wire [95:0]                             i_ptp_tx_tod,
+    input wire                                    i_ptp_rx_tod_valid,
+    input wire [95:0]                             i_ptp_rx_tod,
+    // PTP Commands
+    input  wire [PKT_CYL*1 -1:0]                  i_ptp_ins_ets,
+    input  wire [PKT_CYL*1 -1:0]                  i_ptp_ins_cf,
+    input  wire [PKT_CYL*1 -1:0]                  i_ptp_zero_csum,
+    input  wire [PKT_CYL*1 -1:0]                  i_ptp_update_eb,
+    input  wire [PKT_CYL*1 -1:0]                  i_ptp_p2p,
+    input  wire [PKT_CYL*1 -1:0]                  i_ptp_asym,
+    input  wire [PKT_CYL*1 -1:0]                  i_ptp_asym_sign,
+    input  wire [PKT_CYL*7 -1:0]                  i_ptp_asym_p2p_idx,
+    input  wire [PKT_CYL*16-1:0]                  i_ptp_ts_offset,
+    input  wire [PKT_CYL*16-1:0]                  i_ptp_cf_offset,
+    input  wire [PKT_CYL*16-1:0]                  i_ptp_csum_offset,
+    input  wire [PKT_CYL*96-1:0]                  i_ptp_tx_its,
+    input  wire [PKT_CYL*1-1:0]                   i_ptp_ts_req,
+    input  wire [PKT_CYL*PTP_FP_WIDTH-1:0]        i_ptp_fp,
+    // PTP 2-step Timestamp
+    output wire [PKT_CYL*1 -1:0]                  o_ptp_ets_valid,
+    output wire [PKT_CYL*96-1:0]                  o_ptp_ets,
+    output wire [PKT_CYL*PTP_FP_WIDTH-1:0]        o_ptp_ets_fp,
+    output wire [PKT_CYL*5 -1:0]                  o_ptp_ets_vl,
+    // PTP RX Timestamp
+    output wire [PKT_CYL-1:0]                     o_ptp_rx_its_valid,
+    output wire [PKT_CYL*96-1:0]                  o_ptp_rx_its,
+    output wire [PKT_CYL*5-1:0]                   o_ptp_rx_its_vl,
+    // PTP status
+    output wire                                   o_tx_ptp_offset_data_valid,
+    output wire                                   o_rx_ptp_offset_data_valid,
+    output wire                                   o_tx_ptp_ready,
+    output wire                                   o_rx_ptp_ready,
+
+    input  wire                                   ptp_link,
+
+    // Flow control 
+    input wire                                    i_tx_pause, //Only available if pause flow control is enabled. Asserted to send a pause frame.
+    input wire [8-1:0]                            i_tx_pfc, //Only available if priority flow control is enabled. Used to send a pfc frameinput wire.
+    output wire                                   o_rx_pause, //Indicates that a pause frame was received.
+    output wire [8-1:0]                           o_rx_pfc, //Indicates that a pfc frame was received for priority queue n, where n is the bit number that was asserted.
+
+    // TODO add comment 
+    input wire                                    i_custom_cadence,
+   
+    // STATUS SIGNALS
+    output wire                                   o_rx_block_lock, //Asserted when 66b block alignment is finished on all PCS lanes.
+    output wire                                   o_rx_am_lock, // Asserted when RX PCS has found detected alignment markers and deskewed PCS lanes.
+    output wire                                   o_local_fault_status, //The RX PCS has detected a problem that prevents it from being able to receive data.
+    output wire                                   o_remote_fault_status, // The remote link partner has sent remote fault ordered sets indicating that it is unable to receive data.
+    output wire                                   o_rx_hi_ber, //Signal to indicate that the PMA has locked to data.
+    input wire                                    i_stats_snapshot, // Record snapshot of current state of statistics registers.      
+    output wire                                   o_rx_pcs_fully_aligned,
+    output wire                                   o_tx_lanes_stable, //Asserted when TX MAC is ready to send data.
+    output wire                                   o_rx_pcs_ready, //Asserted when RX PCS is ready to receive data.
+
+    // CLOCK STATUS SIGNALS
+    output wire                                   o_cdr_lock, //Signal to indicate that the PMA has locked to data.
+    output wire                                   o_tx_pll_locked, //Signal to indicate that the TX PLL has locked.
+    output wire                                   o_sys_pll_locked, //Signal to indicate that the o_clk_pll is good to use
+
+    //ETH RECONFIG INTERFACE
+    input wire                                    i_reconfig_clk, 
+    input wire                                    i_reconfig_reset,
+    input wire [13:0]                             i_reconfig_eth_addr,
+    input wire                                    i_reconfig_eth_read,
+    input wire                                    i_reconfig_eth_write,
+    input wire [31:0]                             i_reconfig_eth_writedata,
+    input wire [3:0]                              i_reconfig_eth_byteenable,
+    output wire [31:0]                            o_reconfig_eth_readdata,
+    output wire                                   o_reconfig_eth_readdata_valid,
+    output wire                                   o_reconfig_eth_waitrequest,
+    
+    //XCVR RECONFIG INTERFACE
+    input wire [LANE_NUM-1:0]                     i_reconfig_xcvr_write,
+    input wire [LANE_NUM-1:0]                     i_reconfig_xcvr_read,
+    input wire [LANE_NUM*18-1:0]                  i_reconfig_xcvr_addr,
+    input wire [LANE_NUM*32-1:0]                  i_reconfig_xcvr_writedata,
+    input wire [LANE_NUM*4-1:0]                   i_reconfig_xcvr_byteenable,
+    output wire [LANE_NUM*32-1:0]                  o_reconfig_xcvr_readdata,
+    output wire [LANE_NUM-1:0]                     o_reconfig_xcvr_readdata_valid,
+    output wire [LANE_NUM-1:0]                     o_reconfig_xcvr_waitrequest,
+(* tile_ip_find_net *)    output [NUMPORTS-1:0]                         anlt_link		// between Ux/Bk BB and anlt_sip
+
+);
+// PTP auto connection
+    localparam  PTP_TX_WIDTH                      = 3+1+5+1;
+    localparam  PTP_RX_WIDTH                      = 3+1*9;
+    
+  //  for AVMM1 bb ports
+    wire                                          pld_avmm1_busy;
+    wire                                          pld_avmm1_clk_rowclk;
+    wire                                          pld_avmm1_cmdfifo_wr_full;
+    wire                                          pld_avmm1_cmdfifo_wr_pfull;
+    wire                                          pld_avmm1_read;
+    wire   [7:0]                                  pld_avmm1_readdata;
+    wire                                          pld_avmm1_readdatavalid;
+    wire   [9:0]                                  pld_avmm1_reg_addr;
+    wire                                          pld_avmm1_request;
+    wire   [8:0]                                  pld_avmm1_reserved_in;
+    wire   [2:0]                                  pld_avmm1_reserved_out;
+    wire                                          pld_avmm1_write;
+    wire   [7:0]                                  pld_avmm1_writedata;
+    wire                                          pld_chnl_cal_done;
+    wire                                          pld_hssi_osc_transfer_en;
+
+  //  for AVMM2 bb ports
+    wire  [LANE_NUM-1:0]                          hip_avmm_read;
+    wire  [8*LANE_NUM-1:0]                        hip_avmm_readdata;
+    wire  [LANE_NUM-1:0]                          hip_avmm_readdatavalid;
+    wire  [21*LANE_NUM-1:0]                       hip_avmm_reg_addr;
+    wire  [5*LANE_NUM-1:0]                        hip_avmm_reserved_out;
+    wire  [LANE_NUM-1:0]                          hip_avmm_write;
+    wire  [8*LANE_NUM-1:0]                        hip_avmm_writedata;
+    wire  [LANE_NUM-1:0]                          hip_avmm_writedone;
+    wire  [LANE_NUM-1:0]                          pld_avmm2_busy;
+    wire  [LANE_NUM-1:0]                          pld_avmm2_clk_rowclk;
+    wire  [LANE_NUM-1:0]                          pld_avmm2_cmdfifo_wr_full;
+    wire  [LANE_NUM-1:0]                          pld_avmm2_cmdfifo_wr_pfull;
+    wire  [LANE_NUM-1:0]                          pld_avmm2_request;
+  //  wire  [LANE_NUM-1:0]                          pld_pll_cal_done;
+    wire  [LANE_NUM-1:0]                          pld_avmm2_write;
+    wire  [LANE_NUM-1:0]                          pld_avmm2_read;
+    wire  [9*LANE_NUM-1:0]                        pld_avmm2_reg_addr;
+    wire  [8*LANE_NUM-1:0]                        pld_avmm2_readdata;
+    wire  [8*LANE_NUM-1:0]                        pld_avmm2_writedata;
+    wire  [LANE_NUM-1:0]                          pld_avmm2_readdatavalid;
+    wire  [6*LANE_NUM-1:0]                        pld_avmm2_reserved_in;
+    wire  [LANE_NUM-1:0]                          pld_avmm2_reserved_out;
+	wire [15:0] txaib_transfer_ready;
+	wire [15:0] rxaib_transfer_ready;
+
+    wire  [LANE_NUM-1:0]                         src_placement_virtual;
+    wire [23:0] pld_rx_fifo_ready;
+    wire [23:0] pld_hssi_rx_transfer_en;
+    wire [AIB_LANES-1:0] rx_transfer_ready;
+    wire [AIB_LANES-1:0] tx_transfer_ready;   
+    wire [23:0] pld_tx_fifo_ready;
+    wire [23:0] pld_fabric_tx_transfer_en;   
+
+
+   wire  [AIB_LANES-1:0]                         ptp_placement_virtual;
+
+    // MAC bb ports
+    wire [80*AIB_LANES-1:0]                      tx_parallel_data;
+    wire [80*AIB_LANES-1:0]                      rx_parallel_data;
+    wire [32*AIB_LANES-1:0]                      hdpldadapt_out_link;
+    wire [40*AIB_LANES-1:0]                      hdpldadapt_in_link;
+
+    // PTP SIP-HIP Interface
+    wire [LANE_NUM-1:0]                           tx_ptp_async_cal_sel;
+    wire [LANE_NUM-1:0]                           rx_ptp_async_cal_sel;
+    wire [LANE_NUM-1:0]                           ptp_async_cal_pulse;
+    wire [LANE_NUM-1:0]                           tx_ptp_async_pulse;
+    wire [LANE_NUM-1:0]                           rx_ptp_async_pulse;
+    wire [LANE_NUM-1:0]                           xcvr_rxcdr_locked;   
+    wire [LANE_NUM-1:0]                           xcvr_txpll_locked;      
+@@ if {$XCVR_TYPE_GUI == "0"} {
+    wire [LANE_NUM-1:0]                           xcvr_pcs_txstatus;      
+@@ }
+    wire                                          int_clk_tx;
+    wire                                          int_clk_rx;
+
+    wire [LANE_NUM-1:0]                           tx_dl_async_pulse;
+    wire [LANE_NUM-1:0]                           rx_dl_async_pulse;
+    wire [LANE_NUM-1:0]                           latency_sclk;
+    wire [LANE_NUM-1:0]                           tx_dl_measure_sel;
+    wire [LANE_NUM-1:0]                           rx_dl_measure_sel;
+
+@@ if {$ENABLE_DL_GUI == 0 && $DL_MEASURE == 0} {
+    wire [LANE_NUM-1:0]                           o_tx_dl_async_pulse;
+    wire [LANE_NUM-1:0]                           o_rx_dl_async_pulse;
+    wire [LANE_NUM-1:0]                           i_latency_sclk;
+    wire [LANE_NUM-1:0]                           i_tx_dl_measure_sel;
+    wire [LANE_NUM-1:0]                           i_rx_dl_measure_sel;
+
+    assign i_latency_sclk = 'b0;
+    assign i_tx_dl_measure_sel = 'b0;
+    assign i_rx_dl_measure_sel = 'b0;
+@@}
+@@ if {$DL_MEASURE == 1} {
+    wire [LANE_NUM-1:0]                           o_tx_dl_async_pulse;
+    wire [LANE_NUM-1:0]                           o_rx_dl_async_pulse;
+    wire [LANE_NUM-1:0]                           i_latency_sclk;
+    wire [LANE_NUM-1:0]                           i_tx_dl_measure_sel;
+    wire [LANE_NUM-1:0]                           i_rx_dl_measure_sel;
+
+@@}
+
+
+
+
+   assign pld_chnl_cal_done = 1'b0;
+
+   assign anlt_link = src_placement_virtual[LANE_NUM-1];
+ 	 
+// Selection of SIP internal clock based on ASYNC ADAPTER option
+// In case of AVST SYNC or MAC-SEG or PCS-ONLY interfaces, all
+// SIP logic will work on External i_clk_t/rx clocks. MAIB Phase
+// Compensation FIFOs will be used to adapt data to o_clk_pll clock
+// internal to GDR tile
+// PTP has requirement all Eth ports in one F-tile system must run on same
+// system clock. Either one o_clk_pll is selected among all Eth ports to drive 
+// int_clk_tx/rx of all Eth ports, via i_clk_tx (sync_mode) or i_clk_pll (async mode).
+generate
+    if((ENABLE_ASYNC_ADAPTERS == 1) && (ENABLE_PTP == 1)) begin
+        assign int_clk_tx = i_clk_pll;
+        assign int_clk_rx = i_clk_pll;
+    end
+    else if(ENABLE_ASYNC_ADAPTERS == 1) begin
+        assign int_clk_tx = o_clk_pll;
+        assign int_clk_rx = o_clk_pll;
+    end
+    else begin
+        assign int_clk_tx = i_clk_tx;
+        assign int_clk_rx = i_clk_rx;
+    end
+endgenerate
+
+assign latency_sclk = (ENABLE_PTP == 1)? ptp_async_cal_pulse:i_latency_sclk; 
+assign tx_dl_measure_sel = (ENABLE_PTP == 1)? tx_ptp_async_cal_sel : i_tx_dl_measure_sel;
+assign rx_dl_measure_sel = (ENABLE_PTP == 1)? rx_ptp_async_cal_sel : i_rx_dl_measure_sel;
+ 
+assign tx_ptp_async_pulse = (ENABLE_PTP == 1)? tx_dl_async_pulse : 'b0;  
+assign rx_ptp_async_pulse  = (ENABLE_PTP == 1)? rx_dl_async_pulse : 'b0; 
+
+assign o_tx_dl_async_pulse = (ENABLE_PTP == 0)? tx_dl_async_pulse : 'b0;  
+assign o_rx_dl_async_pulse  = (ENABLE_PTP == 0)? rx_dl_async_pulse : 'b0;   
+
+
+
+(* tile_ip_sip *)   eth_f_sip_${random_str} #(
+        .AIB_LANES                                (AIB_LANES                     ),
+        .DATA_WIDTH                               (DATA_WIDTH                    ),
+        .EMPTY_BITS                               (EMPTY_BITS                    ),
+        .LANE_NUM                                 (LANE_NUM                      ),
+        .EHIP_RATE                                (EHIP_RATE                     ),
+        .PACKING_EN                               (PACKING_EN                     ),
+        .PREAMBLE_PASSTHROUGH                     (PREAMBLE_PASSTHROUGH          ),
+        .TX_EHIP_PP_EN                            (TX_EHIP_PP_EN                 ),
+        .READY_LATENCY                            (READY_LATENCY                 ),
+        .ENABLE_ASYNC_ADAPTERS                    (ENABLE_ASYNC_ADAPTERS         ),
+        .bb_f_ehip_mac_forward_rx_pause_requests  (bb_f_ehip_mac_forward_rx_pause_requests),
+        .bb_f_ehip_mac_flow_control_sip           (bb_f_ehip_mac_flow_control_sip    ),
+        .bb_f_ehip_mac_rx_en_pp                   (bb_f_ehip_mac_rx_preamble_passthrough),
+        .bb_f_ehip_mac_link_fault_mode            (bb_f_ehip_mac_link_fault_mode ), 
+        .ENABLE_PTP                               (ENABLE_PTP                    ),
+        .PTP_TX_WIDTH                             (PTP_TX_WIDTH                  ),
+        .PTP_RX_WIDTH                             (PTP_RX_WIDTH                  ),
+        .PTP_FP_WIDTH                             (PTP_FP_WIDTH                  ),
+        .PKT_CYL                                  (PKT_CYL                       ),
+        .ENABLE_PTP_DEBUG                         (ENABLE_PTP_DEBUG              ),
+        .PTP_ACC_MODE                             (PTP_ACC_MODE                  ),
+        .INFRAME                                  (INFRAME                       ),
+        .SEG_ERROR                                (SEG_ERROR                     ),
+        .SEG_EOP_EMPTY                            (SEG_EOP_EMPTY                 ),
+        .SEG_STATUS                               (SEG_STATUS                    ),
+        .PCS_CONTROL                              (PCS_CONTROL                   ),
+        .FCS_ERROR                                (FCS_ERROR                     ),
+        .ENABLE_ANLT                              (ENABLE_ANLT                   ),
+        .XCVR_TYPE_SIP                            (XCVR_TYPE_SIP                 ),
+        .CLIENT_INT                               (CLIENT_INT                    ),
+        .BLOCK_TYPE                               (BLOCK_TYPE                    ),
+        .MODULATION                               (MODULATION                    ),
+        .FLOW_CONTROL                             (FLOW_CONTROL                  ),
+        .RSFEC_TYPE                               (RSFEC_TYPE                    ),
+        .ENABLE_ADME                              (ENABLE_ADME                   ),
+        .ENABLE_ETK                               (ENABLE_ETK                    ),
+	.ENABLE_SOFT_CWBIN                        (ENABLE_SOFT_CWBIN              ),
+        .BASE_SEC_ENABLE			  (BASE_SEC_ENABLE		),
+	.AVMM2_ADDR_WIDTH			  (AVMM2_ADDR_WIDTH		),
+	.CWBIN_TIMEOUT_COUNT                           (CWBIN_TIMEOUT_COUNT),
+        .NUMPORTS                                 (NUMPORTS)
+    ) sip_inst (
+        .i_clk_tx                                 (i_clk_tx                      ),
+        .i_clk_rx                                 (i_clk_rx                      ),
+        .o_clk_pll                                (o_clk_pll                     ),
+        .o_clk_tx_div                             (o_clk_tx_div                  ),
+        .o_clk_rec_div64                          (o_clk_rec_div64               ),
+        .o_clk_rec_div                            (o_clk_rec_div                 ),
+        .int_clk_tx                               (int_clk_tx                    ),
+        .int_clk_rx                               (int_clk_rx                    ),
+@@ if { $DL_MEASURE == 1 } {
+        .i_sampling_clk                           (i_sampling_clk		),
+@@}
+        .i_tx_rst_n                               (i_tx_rst_n                    ),
+        .i_rx_rst_n                               (i_rx_rst_n                    ),
+        .i_rst_n                                  (i_rst_n                       ),
+        .o_rst_ack_n                              (o_rst_ack_n                   ),
+        .o_tx_rst_ack_n                           (o_tx_rst_ack_n                ),
+        .o_rx_rst_ack_n                           (o_rx_rst_ack_n                ),
+        .i_tx_mac_data                            (i_tx_mac_data                 ),
+        .i_tx_mac_valid                           (i_tx_mac_valid                ),
+        .i_tx_mac_inframe                         (i_tx_mac_inframe              ),
+        .i_tx_mac_eop_empty                       (i_tx_mac_eop_empty            ),
+        .o_tx_mac_ready                           (o_tx_mac_ready                ),
+        .i_tx_mac_error                           (i_tx_mac_error                ),
+        .i_tx_mac_skip_crc                        (i_tx_mac_skip_crc             ),
+        .o_rx_mac_data                            (o_rx_mac_data                 ),
+        .o_rx_mac_valid                           (o_rx_mac_valid                ),
+        .o_rx_mac_inframe                         (o_rx_mac_inframe              ),
+        .o_rx_mac_eop_empty                       (o_rx_mac_eop_empty            ),
+        .o_rx_mac_error                           (o_rx_mac_error                ),
+        .o_rx_mac_fcs_error                       (o_rx_mac_fcs_error            ),
+        .o_rx_mac_status                          (o_rx_mac_status               ),
+        .i_tx_data                                (i_tx_data                     ),
+        .i_tx_valid                               (i_tx_valid                    ),
+        .i_tx_startofpacket                       (i_tx_startofpacket            ),
+        .i_tx_endofpacket                         (i_tx_endofpacket              ),
+        .o_tx_ready                               (o_tx_ready                    ),
+        .i_tx_empty                               (i_tx_empty                    ),
+        .i_tx_error                               (i_tx_error                    ),
+        .i_tx_skip_crc                            (i_tx_skip_crc                 ),
+        .i_tx_preamble                            (i_tx_preamble                 ),
+        .o_rx_data                                (o_rx_data                     ),
+        .o_rx_valid                               (o_rx_valid                    ),
+        .o_rx_startofpacket                       (o_rx_startofpacket            ),
+        .o_rx_endofpacket                         (o_rx_endofpacket              ),
+        .o_rx_empty                               (o_rx_empty                    ),
+        .o_rx_error                               (o_rx_error                    ),
+        .o_rx_preamble                            (o_rx_preamble                 ),
+        .o_rxstatus_data                          (o_rxstatus_data               ),
+        .o_rxstatus_valid                         (o_rxstatus_valid              ),
+        .i_tx_mii_d                               (i_tx_mii_d                    ),
+        .i_tx_mii_c                               (i_tx_mii_c                    ),
+        .i_tx_mii_valid                           (i_tx_mii_valid                ),
+        .o_tx_mii_ready                           (o_tx_mii_ready                ),
+        .i_tx_mii_am                              (i_tx_mii_am                   ),
+        .o_rx_mii_d                               (o_rx_mii_d                    ),
+        .o_rx_mii_c                               (o_rx_mii_c                    ),
+        .o_rx_mii_valid                           (o_rx_mii_valid                ),
+        .o_rx_mii_am_valid                        (o_rx_mii_am_valid             ),
+        .i_tx_pcs66_d                             (i_tx_pcs66_d                  ),
+        .i_tx_pcs66_valid                         (i_tx_pcs66_valid              ),
+        .o_tx_pcs66_ready                         (o_tx_pcs66_ready              ),
+        .i_tx_pcs66_am                            (i_tx_pcs66_am                 ),
+        .o_rx_pcs66_d                             (o_rx_pcs66_d                  ),
+        .o_rx_pcs66_valid                         (o_rx_pcs66_valid              ),
+        .o_rx_pcs66_am_valid                      (o_rx_pcs66_am_valid           ),
+        .i_clk_tx_tod                             (i_clk_tx_tod                  ),
+        .i_clk_rx_tod                             (i_clk_rx_tod                  ),
+        .i_clk_ptp_sample                         (i_clk_ptp_sample              ),
+        .i_ptp_tx_tod_valid                       (i_ptp_tx_tod_valid            ),
+        .i_ptp_tx_tod                             (i_ptp_tx_tod                  ),
+        .i_ptp_rx_tod_valid                       (i_ptp_rx_tod_valid            ),
+        .i_ptp_rx_tod                             (i_ptp_rx_tod                  ),
+        .i_ptp_ins_ets                            (i_ptp_ins_ets                 ),
+        .i_ptp_ins_cf                             (i_ptp_ins_cf                  ),
+        .i_ptp_zero_csum                          (i_ptp_zero_csum               ),
+        .i_ptp_update_eb                          (i_ptp_update_eb               ),
+        .i_ptp_p2p                                (i_ptp_p2p                     ),
+        .i_ptp_asym                               (i_ptp_asym                    ),
+        .i_ptp_asym_sign                          (i_ptp_asym_sign               ),
+        .i_ptp_asym_p2p_idx                       (i_ptp_asym_p2p_idx            ),
+        .i_ptp_ts_format                          ({PKT_CYL{1'b0}}               ),
+        .i_ptp_ts_offset                          (i_ptp_ts_offset               ),
+        .i_ptp_cf_offset                          (i_ptp_cf_offset               ),
+        .i_ptp_csum_offset                        (i_ptp_csum_offset             ),
+        .i_ptp_tx_its                             (i_ptp_tx_its                  ),
+        .i_ptp_ts_req                             (i_ptp_ts_req                  ),
+        .i_ptp_fp                                 (i_ptp_fp                      ),
+        .o_ptp_ets_valid                          (o_ptp_ets_valid               ),
+        .o_ptp_ets                                (o_ptp_ets                     ),
+        .o_ptp_ets_fp                             (o_ptp_ets_fp                  ),
+        .o_ptp_ets_vl                             (o_ptp_ets_vl                  ),
+        .o_ptp_rx_its_valid                       (o_ptp_rx_its_valid            ),
+        .o_ptp_rx_its                             (o_ptp_rx_its                  ),
+        .o_ptp_rx_its_vl                          (o_ptp_rx_its_vl               ),
+        .o_tx_ptp_async_cal_sel                   (tx_ptp_async_cal_sel          ),
+        .o_rx_ptp_async_cal_sel                   (rx_ptp_async_cal_sel          ),
+        .o_ptp_async_cal_pulse                    (ptp_async_cal_pulse           ),
+        .i_tx_ptp_async_pulse                     (tx_ptp_async_pulse            ),
+        .i_rx_ptp_async_pulse                     (rx_ptp_async_pulse            ),
+        .o_tx_ptp_offset_data_valid               (o_tx_ptp_offset_data_valid    ),
+        .o_rx_ptp_offset_data_valid               (o_rx_ptp_offset_data_valid    ),
+        .o_tx_ptp_ready                           (o_tx_ptp_ready                ),
+        .o_rx_ptp_ready                           (o_rx_ptp_ready                ),
+        .i_tx_pause                               (i_tx_pause                    ),
+        .i_tx_pfc                                 (i_tx_pfc                      ),
+        .o_rx_pause                               (o_rx_pause                    ),
+        .o_rx_pfc                                 (o_rx_pfc                      ),
+        .o_rx_block_lock                          (o_rx_block_lock               ),
+        .o_rx_am_lock                             (o_rx_am_lock                  ),
+        .o_local_fault_status                     (o_local_fault_status          ),
+        .o_remote_fault_status                    (o_remote_fault_status         ),
+        .o_rx_hi_ber                              (o_rx_hi_ber                   ),
+        .i_stats_snapshot                         (i_stats_snapshot              ),
+        .xcvr_rxcdr_locked                        (xcvr_rxcdr_locked             ),
+@@ if {$XCVR_TYPE_GUI == "0"} {
+        .xcvr_txpll_locked                        (xcvr_txpll_locked & xcvr_pcs_txstatus  ),
+@@ } else {
+	.xcvr_txpll_locked                        (xcvr_txpll_locked  ),
+@@ }
+        .o_rx_pcs_fully_aligned                   (o_rx_pcs_fully_aligned        ),
+        .o_cdr_lock                               (o_cdr_lock                    ),
+        .o_tx_lanes_stable                        (o_tx_lanes_stable             ),
+        .o_rx_pcs_ready                           (o_rx_pcs_ready                ),
+        .o_tx_pll_locked                          (o_tx_pll_locked               ),
+        .o_sys_pll_locked                         (o_sys_pll_locked               ),
+        .i_custom_cadence                         (i_custom_cadence              ),
+        .i_txaib_transfer_ready                   (txaib_transfer_ready),
+        .i_rxaib_transfer_ready 				  (rxaib_transfer_ready),
+@@if {$TEST_SIP == 0 } {
+        .tx_parallel_data                         (tx_parallel_data              ),
+        .rx_parallel_data                         (rx_parallel_data              ),
+        .hdpldadapt_out_link                      (hdpldadapt_out_link           ),
+        .hdpldadapt_in_link                       (hdpldadapt_in_link            ),
+@@ }
+@@if {$DL_MEASURE == 1} {
+        .i_tx_dl_async_pulse			 (o_tx_dl_async_pulse),
+        .i_rx_dl_async_pulse			 (o_rx_dl_async_pulse),
+        .o_latency_sclk                          (i_latency_sclk),                        
+        .o_tx_dl_measure_sel                     (i_tx_dl_measure_sel),
+	.o_rx_dl_measure_sel                     (i_rx_dl_measure_sel),
+@@ }
+        .i_reconfig_clk                           (i_reconfig_clk                ),
+        .i_reconfig_reset                         (i_reconfig_reset              ),
+        .i_reconfig_xcvr_addr                     (i_reconfig_xcvr_addr          ),
+        .i_reconfig_xcvr_read                     (i_reconfig_xcvr_read          ),
+        .i_reconfig_xcvr_write                    (i_reconfig_xcvr_write         ),
+        .i_reconfig_xcvr_writedata                (i_reconfig_xcvr_writedata     ),
+        .i_reconfig_xcvr_byteenable               (i_reconfig_xcvr_byteenable    ),
+        .o_reconfig_xcvr_readdata                 (o_reconfig_xcvr_readdata      ),
+        .o_reconfig_xcvr_readdata_valid           (o_reconfig_xcvr_readdata_valid),
+        .o_reconfig_xcvr_waitrequest              (o_reconfig_xcvr_waitrequest   ),
+        .i_reconfig_eth_addr                      (i_reconfig_eth_addr           ),
+        .i_reconfig_eth_read                      (i_reconfig_eth_read           ),
+        .i_reconfig_eth_write                     (i_reconfig_eth_write          ),
+        .i_reconfig_eth_writedata                 (i_reconfig_eth_writedata      ),
+        .i_reconfig_eth_byteenable                (i_reconfig_eth_byteenable     ),
+        .o_reconfig_eth_readdata                  (o_reconfig_eth_readdata       ),
+        .o_reconfig_eth_readdata_valid            (o_reconfig_eth_readdata_valid ),
+        .o_reconfig_eth_waitrequest               (o_reconfig_eth_waitrequest    ),
+  // Signals from AVMM1 building block
+        .pld_avmm1_busy                           (pld_avmm1_busy                ),
+        .pld_avmm1_cmdfifo_wr_full                (pld_avmm1_cmdfifo_wr_full     ),
+        .pld_avmm1_cmdfifo_wr_pfull               (pld_avmm1_cmdfifo_wr_pfull    ),
+        .pld_avmm1_readdata                       (pld_avmm1_readdata[7:0]       ), // 8 bits
+        .pld_avmm1_readdatavalid                  (pld_avmm1_readdatavalid       ),
+        .pld_avmm1_reserved_out                   (pld_avmm1_reserved_out[2:0]   ), // 3 bits
+        .pld_chnl_cal_done                        (pld_chnl_cal_done             ), 
+        .pld_hssi_osc_transfer_en                 (pld_hssi_osc_transfer_en      ),
+  // Signals to AVMM1 building block
+        .pld_avmm1_clk_rowclk                     (pld_avmm1_clk_rowclk          ),
+        .pld_avmm1_read                           (pld_avmm1_read                ),
+        .pld_avmm1_reg_addr                       (pld_avmm1_reg_addr[9:0]       ), // 10 bits
+        .pld_avmm1_request                        (pld_avmm1_request             ),
+        .pld_avmm1_reserved_in                    (pld_avmm1_reserved_in[8:0]    ), // 9 bits
+        .pld_avmm1_write                          (pld_avmm1_write               ),
+        .pld_avmm1_writedata                      (pld_avmm1_writedata[7:0]      ), // 8 bits
+        .ptp_placement_virtual                    (ptp_placement_virtual         ),
+        .src_placement_virtual                    (src_placement_virtual         ),
+
+	
+  // Signals to AVMM2 building block 
+        .hip_avmm_read                            ( hip_avmm_read              ),
+        .hip_avmm_readdata                        ( hip_avmm_readdata          ),
+        .hip_avmm_readdatavalid                   ( hip_avmm_readdatavalid     ),
+        .hip_avmm_reg_addr                        ( hip_avmm_reg_addr          ),
+        .hip_avmm_reserved_out                    ( hip_avmm_reserved_out      ),
+        .hip_avmm_write                           ( hip_avmm_write             ),
+        .hip_avmm_writedata                       ( hip_avmm_writedata         ),
+        .hip_avmm_writedone                       ( hip_avmm_writedone         ),
+        .pld_avmm2_busy                           ( pld_avmm2_busy             ),
+        .pld_avmm2_clk_rowclk                     ( pld_avmm2_clk_rowclk       ),
+        .pld_avmm2_cmdfifo_wr_full                ( pld_avmm2_cmdfifo_wr_full  ),
+        .pld_avmm2_cmdfifo_wr_pfull               ( pld_avmm2_cmdfifo_wr_pfull ),
+        .pld_avmm2_request                        ( pld_avmm2_request          ),
+        // .pld_pll_cal_done                         ( pld_pll_cal_done           ),
+        .pld_avmm2_write                          ( pld_avmm2_write            ),
+        .pld_avmm2_read                           ( pld_avmm2_read             ),
+        .pld_avmm2_reg_addr                       ( pld_avmm2_reg_addr         ),
+        .pld_avmm2_readdata                       ( pld_avmm2_readdata         ),
+        .pld_avmm2_writedata                      ( pld_avmm2_writedata        ),
+        .pld_avmm2_readdatavalid                  ( pld_avmm2_readdatavalid    ),
+        .pld_avmm2_reserved_in                    ( pld_avmm2_reserved_in      )
+    );
+
+	genvar j;
+
+generate
+    for(j=0; j<AIB_LANES; j=j+1)  begin:each_aibtransfer
+		assign rxaib_transfer_ready[j] 	= pld_hssi_rx_transfer_en[23-j] & pld_rx_fifo_ready[23-j];
+		assign txaib_transfer_ready[j]	= pld_fabric_tx_transfer_en[23-j] & pld_tx_fifo_ready[23-j];
+    end
+endgenerate
+generate
+    if(AIB_LANES!=16) begin
+		  assign rxaib_transfer_ready[15:AIB_LANES] = {(16-AIB_LANES){1'b0}};
+		  assign txaib_transfer_ready[15:AIB_LANES]	= {(16-AIB_LANES){1'b0}};
+    end
+endgenerate
+
+
+@@if {$TEST_SIP == 1 } {
+   bb_avmm1 bb_avmm1 (
+  // Signals from AVMM1 building block
+        .pld_avmm1_busy_real                           (pld_avmm1_busy                ),
+        .pld_avmm1_cmdfifo_wr_full_real                (pld_avmm1_cmdfifo_wr_full     ),
+        .pld_avmm1_cmdfifo_wr_pfull_real               (pld_avmm1_cmdfifo_wr_pfull    ),
+        .pld_avmm1_readdata_real                       (pld_avmm1_readdata[7:0]       ), // 8 bits
+        .pld_avmm1_readdatavalid_real                  (pld_avmm1_readdatavalid       ),
+        .pld_avmm1_reserved_out_real                   (pld_avmm1_reserved_out[2:0]   ), // 3 bits
+        .pld_chnl_cal_done_real                        (pld_chnl_cal_done             ), 
+        .pld_hssi_osc_transfer_en_real                 (pld_hssi_osc_transfer_en      ),
+  // Signals to AVMM1 building block
+        .pld_avmm1_clk_rowclk_real                     (pld_avmm1_clk_rowclk          ),
+        .pld_avmm1_read_real                           (pld_avmm1_read                ),
+        .pld_avmm1_reg_addr_real                       (pld_avmm1_reg_addr[9:0]       ), // 10 bits
+        .pld_avmm1_request_real                        (pld_avmm1_request             ),
+        .pld_avmm1_reserved_in_real                    (pld_avmm1_reserved_in[8:0]    ), // 9 bits
+        .pld_avmm1_write_real                          (pld_avmm1_write               ),
+        .pld_avmm1_writedata_real                      (pld_avmm1_writedata[7:0]      ) // 8 bits
+    );
+@@}
+
+localparam local_forward_rx_pause_req = (EHIP_RATE == "400G") ? bb_f_ehip_mac_forward_rx_pause_requests : bb_f_ehip_mac_forward_rx_pause_requests_int;
+
+@@if {$TEST_SIP == 0 } { 
+
+(* tile_ip_hip *)  eth_f_hip_${random_str} #(
+        .num_aib                                                  (AIB_LANES),
+        .num_xcvr                                                 (LANE_NUM),
+        .bb_f_ehip_aib2_rx_st_clk_en                              (bb_f_ehip_aib2_rx_st_clk_en                              ),
+        .bb_f_ehip_aib2_tx_st_clk_en                              (bb_f_ehip_aib2_tx_st_clk_en                              ),
+        .bb_f_ehip_aib3_rx_st_clk_en                              (bb_f_ehip_aib3_rx_st_clk_en                              ),
+        .bb_f_ehip_aib3_tx_st_clk_en                              (bb_f_ehip_aib3_tx_st_clk_en                              ),
+        .bb_f_ehip_aibif_data_valid                               (bb_f_ehip_aibif_data_valid                               ),
+        .bb_f_ehip_dl_enable                                      (bb_f_ehip_dl_enable                                      ),
+        .bb_f_ehip_e400g_ptp0_aib2_div2_clk                       (bb_f_ehip_e400g_ptp0_aib2_div2_clk                       ),
+        .bb_f_ehip_e400g_ptp1_aib2_div2_clk                       (bb_f_ehip_e400g_ptp1_aib2_div2_clk                       ),
+        .bb_f_ehip_duplex_mode                                    (bb_f_ehip_duplex_mode                                    ),
+        .bb_f_ehip_fec_mode                                       (bb_f_ehip_fec_mode                                       ),
+        .bb_f_ehip_fec_spec                                       (bb_f_ehip_fec_spec                                       ),
+        .bb_f_ehip_frac_size                                      (bb_f_ehip_frac_size                                      ),
+        .bb_f_ehip_fec_clk_src                                    (bb_f_ehip_fec_clk_src                                    ),
+        .bb_f_ehip_fec_error                                      (bb_f_ehip_fec_error                                      ),
+        .bb_f_ehip_lpbk_mode                                      (bb_f_ehip_lpbk_mode                                      ),
+        .bb_f_ehip_mac_disable_link_fault_rf                      (bb_f_ehip_mac_disable_link_fault_rf                      ),
+        .bb_f_ehip_mac_flow_control                               (bb_f_ehip_mac_flow_control                               ),
+        .bb_f_ehip_mac_flow_control_holdoff_mode                  (bb_f_ehip_mac_flow_control_holdoff_mode                  ),
+        .bb_f_ehip_mac_force_link_fault_rf                        (bb_f_ehip_mac_force_link_fault_rf                        ),
+        .bb_f_ehip_mac_enforce_max_frame_size                     (bb_f_ehip_mac_enforce_max_frame_size                     ),
+        .bb_f_ehip_mac_forward_rx_pause_requests                  (local_forward_rx_pause_req                                ),
+        .bb_f_ehip_mac_holdoff_quanta                             (bb_f_ehip_mac_holdoff_quanta                             ),
+        .bb_f_ehip_mac_ipg_removed_per_am_period                  (bb_f_ehip_mac_ipg_removed_per_am_period                  ),
+        .bb_f_ehip_mac_keep_rx_crc                                (bb_f_ehip_mac_keep_rx_crc                                ),
+        .bb_f_ehip_mac_link_fault_mode                            (bb_f_ehip_mac_link_fault_mode                            ),
+        .bb_f_ehip_mac_pause_quanta                               (bb_f_ehip_mac_pause_quanta                               ),
+        .bb_f_ehip_mac_remove_pads                                (bb_f_ehip_mac_remove_pads                                ),
+        .bb_f_ehip_mac_rx_length_checking                         (bb_f_ehip_mac_rx_length_checking                         ),
+        .bb_f_ehip_mac_rx_preamble_passthrough                    (bb_f_ehip_mac_rx_preamble_passthrough                    ),
+        .bb_f_ehip_mac_rx_vlan_detection                          (bb_f_ehip_mac_rx_vlan_detection                          ),
+        .bb_f_ehip_mac_rxcrc_covers_preamble                      (bb_f_ehip_mac_rxcrc_covers_preamble                      ),
+        .bb_f_ehip_mac_source_address_insertion                   (bb_f_ehip_mac_source_address_insertion                   ),
+        .bb_f_ehip_mac_strict_preamble_checking                   (bb_f_ehip_mac_strict_preamble_checking                   ),
+        .bb_f_ehip_mac_strict_sfd_checking                        (bb_f_ehip_mac_strict_sfd_checking                        ),
+        .bb_f_ehip_mac_tx_mac_data_flow                           (bb_f_ehip_mac_tx_mac_data_flow                           ),
+        .bb_f_ehip_mac_tx_preamble_passthrough                    (bb_f_ehip_mac_tx_preamble_passthrough                    ),
+        .bb_f_ehip_mac_tx_vlan_detection                          (bb_f_ehip_mac_tx_vlan_detection                          ),
+        .bb_f_ehip_mac_txcrc_covers_preamble                      (bb_f_ehip_mac_txcrc_covers_preamble                      ),
+        .bb_f_ehip_mac_mode                                       (bb_f_ehip_mac_mode                                       ),
+        .bb_f_ehip_pcs_ber_mon_mode                               (bb_f_ehip_pcs_ber_mon_mode                               ),
+        .bb_f_ehip_tx_pmadirect_single_width                      (bb_f_ehip_tx_pmadirect_single_width                      ),
+        .bb_f_ehip_rx_pmadirect_single_width                      (bb_f_ehip_rx_pmadirect_single_width                      ),
+        .bb_f_ehip_ptp_mode                                       (bb_f_ehip_ptp_mode                                       ),
+        .bb_f_ehip_mac_tx_ptp_phy_lane_num                        (bb_f_ehip_mac_tx_ptp_phy_lane_num                        ),
+        .bb_f_ehip_mac_rx_ptp_phy_lane_num                        (bb_f_ehip_mac_rx_ptp_phy_lane_num                        ),
+        .bb_f_ehip_rx_aib_if_fifo_mode                            (bb_f_ehip_rx_aib_if_fifo_mode                            ),
+        .dec_bb_f_ehip_rx_datarate                                (dec_bb_f_ehip_rx_datarate                                ),
+        .bb_f_ehip_rx_en                                          (bb_f_ehip_rx_en                                          ),
+        .bb_f_ehip_rx_excvr_gb_ratio_mode                         (bb_f_ehip_rx_excvr_gb_ratio_mode                         ),
+        .bb_f_ehip_rx_excvr_if_fifo_mode                          (bb_f_ehip_rx_excvr_if_fifo_mode                          ),
+        .bb_f_ehip_rx_fec_enable                                  (bb_f_ehip_rx_fec_enable                                  ),
+        .bb_f_ehip_rx_pcs_mode                                    (bb_f_ehip_rx_pcs_mode                                    ),
+        .bb_f_ehip_rx_primary_use                                 (bb_f_ehip_rx_primary_use                                 ),
+        .bb_f_ehip_rx_total_xcvr                                  (bb_f_ehip_rx_total_xcvr                                  ),
+        .bb_f_ehip_rx_xcvr_width                                  (bb_f_ehip_rx_xcvr_width                                  ),
+        .bb_f_ehip_silicon_rev                                    (bb_f_ehip_silicon_rev                                    ),
+        .bb_f_ehip_speed_map                                      (bb_f_ehip_speed_map                                      ),
+        .bb_f_ehip_tx_aib_if_fifo_mode                            (bb_f_ehip_tx_aib_if_fifo_mode                            ),
+        .dec_bb_f_ehip_tx_datarate                                (dec_bb_f_ehip_tx_datarate                                ),
+        .bb_f_ehip_sim_mode                                       (bb_f_ehip_sim_mode                                       ),
+        .bb_f_ehip_sup_mode                                       (bb_f_ehip_sup_mode                                       ),
+        .bb_f_ehip_sys_clk_src                                    (bb_f_ehip_sys_clk_src                                    ),
+        .bb_f_ehip_topology                                       (bb_f_ehip_topology                                       ),
+        .bb_f_ehip_tx_en                                          (bb_f_ehip_tx_en                                          ),
+        .bb_f_ehip_tx_excvr_gb_ratio_mode                         (bb_f_ehip_tx_excvr_gb_ratio_mode                         ),
+        .bb_f_ehip_tx_excvr_if_fifo_mode                          (bb_f_ehip_tx_excvr_if_fifo_mode                          ),
+        .bb_f_ehip_tx_fec_enable                                  (bb_f_ehip_tx_fec_enable                                  ),
+        .bb_f_ehip_tx_pcs_mode                                    (bb_f_ehip_tx_pcs_mode                                    ),
+        .bb_f_ehip_tx_primary_use                                 (bb_f_ehip_tx_primary_use                                 ),
+        .bb_f_ehip_tx_total_xcvr                                  (bb_f_ehip_tx_total_xcvr                                  ),
+        .bb_f_ehip_tx_xcvr_width                                  (bb_f_ehip_tx_xcvr_width                                  ),
+        .bb_f_ehip_tx_word_clk_hz                                 (bb_f_ehip_tx_word_clk_hz                                 ),
+        .bb_f_ehip_rx_word_clk_hz                                 (bb_f_ehip_rx_word_clk_hz                                 ),
+        .bb_f_ehip_xcvr_mode                                      (bb_f_ehip_xcvr_mode                                      ),
+        .bb_f_ehip_xcvr_type                                      (bb_f_ehip_xcvr_type                                      ),
+        .bb_f_ehip_mac_pfc_holdoff_quanta_0                       (bb_f_ehip_mac_pfc_holdoff_quanta_0  ),
+        .bb_f_ehip_mac_pfc_holdoff_quanta_1                       (bb_f_ehip_mac_pfc_holdoff_quanta_1  ),
+        .bb_f_ehip_mac_pfc_holdoff_quanta_2                       (bb_f_ehip_mac_pfc_holdoff_quanta_2  ),
+        .bb_f_ehip_mac_pfc_holdoff_quanta_3                       (bb_f_ehip_mac_pfc_holdoff_quanta_3  ),
+        .bb_f_ehip_mac_pfc_holdoff_quanta_4                       (bb_f_ehip_mac_pfc_holdoff_quanta_4  ),
+        .bb_f_ehip_mac_pfc_holdoff_quanta_5                       (bb_f_ehip_mac_pfc_holdoff_quanta_5  ),
+        .bb_f_ehip_mac_pfc_holdoff_quanta_6                       (bb_f_ehip_mac_pfc_holdoff_quanta_6  ),
+        .bb_f_ehip_mac_pfc_holdoff_quanta_7                       (bb_f_ehip_mac_pfc_holdoff_quanta_7  ),
+        .bb_f_ehip_mac_pfc_pause_quanta_0                         (bb_f_ehip_mac_pfc_pause_quanta_0    ),
+        .bb_f_ehip_mac_pfc_pause_quanta_1                         (bb_f_ehip_mac_pfc_pause_quanta_1    ),
+        .bb_f_ehip_mac_pfc_pause_quanta_2                         (bb_f_ehip_mac_pfc_pause_quanta_2    ),
+        .bb_f_ehip_mac_pfc_pause_quanta_3                         (bb_f_ehip_mac_pfc_pause_quanta_3    ),
+        .bb_f_ehip_mac_pfc_pause_quanta_4                         (bb_f_ehip_mac_pfc_pause_quanta_4    ),
+        .bb_f_ehip_mac_pfc_pause_quanta_5                         (bb_f_ehip_mac_pfc_pause_quanta_5    ),
+        .bb_f_ehip_mac_pfc_pause_quanta_6                         (bb_f_ehip_mac_pfc_pause_quanta_6    ),
+        .bb_f_ehip_mac_pfc_pause_quanta_7                         (bb_f_ehip_mac_pfc_pause_quanta_7    ),
+        .bb_f_ehip_mac_request_tx_pause                           (bb_f_ehip_mac_request_tx_pause      ),
+        .bb_f_ehip_mac_rx_max_frame_size                          (bb_f_ehip_mac_rx_max_frame_size     ),
+        .bb_f_ehip_mac_rx_pause_daddr                             (bb_f_ehip_mac_rx_pause_daddr        ),
+        .bb_f_ehip_mac_tx_ipg_size                                (bb_f_ehip_mac_tx_ipg_size           ),
+        .bb_f_ehip_mac_tx_max_frame_size                          (bb_f_ehip_mac_tx_max_frame_size     ),
+        .bb_f_ehip_mac_tx_pause_daddr                             (bb_f_ehip_mac_tx_pause_daddr        ),
+        .bb_f_ehip_mac_tx_pause_saddr                             (bb_f_ehip_mac_tx_pause_saddr        ),
+        .bb_f_ehip_mac_txmac_saddr                                (bb_f_ehip_mac_txmac_saddr           ),
+        .bb_f_ehip_mac_uniform_holdoff_quanta                     (bb_f_ehip_mac_uniform_holdoff_quanta),
+        .bb_f_ehip_fec_802p3ck                                    (bb_f_ehip_fec_802p3ck                 ), 
+        .bb_f_ehip_q_dl_cfg_rxbit_rollover_attr                   (bb_f_ehip_q_dl_cfg_rxbit_rollover_attr),
+		.bb_f_ehip_mac_use_am_insert	                          (bb_f_ehip_mac_use_am_insert) ,
+		.bb_f_ehip_is_ptp_part_of_reconfig		                  (bb_f_ehip_is_ptp_part_of_reconfig)	,
+		.bb_f_ehip_is_fec_part_of_reconfig		                  (bb_f_ehip_is_fec_part_of_reconfig)	,
+        .bb_f_ux_tx_invert_p_and_n                                (bb_f_ux_tx_invert_p_and_n),
+        .bb_f_ux_rx_invert_p_and_n                                (bb_f_ux_rx_invert_p_and_n),
+        .bb_f_ux_rx_fw_clearing_regsiter_attr                     (bb_f_ux_rx_fw_clearing_regsiter_attr),
+        .bb_f_ux_rx_bypass_on_chip_ac_cap                         (bb_f_ux_rx_bypass_on_chip_ac_cap),
+        .bb_f_ux_rx_vcm_greater_than_0p35v_with_bypass_on_chip_ac_cap (bb_f_ux_rx_vcm_greater_than_0p35v_with_bypass_on_chip_ac_cap),
+        .bb_f_ux_cdr_clkdiv_en                                    (bb_f_ux_cdr_clkdiv_en                       ),         
+        .bb_f_ux_cdr_f_postdiv_hz                                 (bb_f_ux_cdr_f_postdiv_hz                ),         
+        .bb_f_ux_cdr_postdiv_counter                              (bb_f_ux_cdr_postdiv_counter                 ),         
+        .bb_f_ux_cdr_postdiv_fractional_en                        (bb_f_ux_cdr_postdiv_fractional_en           ),         
+        .bb_f_ux_cdr_ppm_driftcount                               (bb_f_ux_cdr_ppm_driftcount                  ),         
+        .bb_f_ux_master_pll_pair_mode                             (bb_f_ux_master_pll_pair_mode                ),         
+        .bb_f_ux_core_pll                                         (bb_f_ux_core_pll                            ),         
+        .bb_f_ux_dl_enable                                        (bb_f_ux_dl_enable                           ),         
+        .bb_f_ux_dpma_refclk_source                               (bb_f_ux_dpma_refclk_source                  ),         
+        .bb_f_ux_enable_port_control_of_cdr_ltr_ltd               (bb_f_ux_enable_port_control_of_cdr_ltr_ltd    ),
+        .bb_f_ux_enable_static_refclk_network                     (bb_f_ux_enable_static_refclk_network        ),         
+        .bb_f_ux_engineered_link_mode                             (bb_f_ux_engineered_link_mode                ),         
+        .bb_f_ux_flux_mode                                        (bb_f_ux_flux_mode                           ),         
+        .bb_f_ux_force_cdr_ltd                                    (bb_f_ux_force_cdr_ltd                       ),         
+        .bb_f_ux_force_cdr_ltr                                    (bb_f_ux_force_cdr_ltr                       ),         
+        .bb_f_ux_force_refclk_power_to_specific_value             (bb_f_ux_force_refclk_power_to_specific_value),         
+        .bb_f_ux_full_quad_master_pll_mode                        (bb_f_ux_full_quad_master_pll_mode           ),         
+        .bb_f_ux_loopback_mode                                    (bb_f_ux_loopback_mode                       ),         
+        .bb_f_ux_master_sup_mode                                  (bb_f_ux_master_sup_mode                     ),         
+        .bb_f_ux_prbs_gen_en                                      (bb_f_ux_prbs_gen_en                         ),         
+        .bb_f_ux_prbs_mon_en                                      (bb_f_ux_prbs_mon_en                         ),         
+        .bb_f_ux_q_dl_cfg_rx_lat_bit_for_async_attr               (bb_f_ux_q_dl_cfg_rx_lat_bit_for_async_attr  ),         
+        .bb_f_ux_q_dl_cfg_rxbit_cntr_pma_attr                     (bb_f_ux_q_dl_cfg_rxbit_cntr_pma_attr        ),         
+        .bb_f_ux_q_dl_cfg_rxbit_rollover_attr                     (bb_f_ux_q_dl_cfg_rxbit_rollover_attr        ),         
+        .bb_f_ux_quad_pcie_mode                                   (bb_f_ux_quad_pcie_mode                      ),         
+        .bb_f_ux_rx_adapt_mode                                    (bb_f_ux_rx_adapt_mode                       ),         
+        .bb_f_ux_rx_bond_size                                     (bb_f_ux_rx_bond_size                        ),         
+        .dec_bb_f_ux_rx_line_rate_bps                             (dec_bb_f_ux_rx_line_rate_bps                ),         
+        .bb_f_ux_rx_over_sample                                   (bb_f_ux_rx_over_sample                      ),         
+        .bb_f_ux_rx_pam4_graycode_en                              (bb_f_ux_rx_pam4_graycode_en                 ),         
+        .bb_f_ux_rx_pam4_precode_en                               (bb_f_ux_rx_pam4_precode_en                  ),         
+        .bb_f_ux_rx_protocol                                      (bb_f_ux_rx_protocol                         ),         
+        .bb_f_ux_tx_protocol_hard_pcie_lowloss                    (bb_f_ux_tx_protocol_hard_pcie_lowloss       ),         
+        .bb_f_ux_rx_protocol_hard_pcie_lowloss                    (bb_f_ux_rx_protocol_hard_pcie_lowloss       ),         
+        .bb_f_ux_rx_user_clk_en                                   (bb_f_ux_rx_user_clk_en                      ),         
+        .bb_f_ux_rx_width                                         (bb_f_ux_rx_width                            ),         
+        .bb_f_ux_silicon_rev                                      (bb_f_ux_silicon_rev                         ),         
+        .bb_f_ux_squelch_detect                                   (bb_f_ux_squelch_detect                      ),         
+        .bb_f_ux_sr_custom                                        (bb_f_ux_sr_custom                           ),         
+        .bb_f_ux_sup_mode                                         (bb_f_ux_sup_mode                            ),         
+        .bb_f_ux_synth_lc_fast_f_rx_postdiv_hz                    (bb_f_ux_synth_lc_fast_f_rx_postdiv_hz       ),         
+        .bb_f_ux_synth_lc_fast_f_tx_postdiv_hz                    (bb_f_ux_synth_lc_fast_f_tx_postdiv_hz       ),         
+        .bb_f_ux_synth_lc_fast_rx_postdiv_counter                 (bb_f_ux_synth_lc_fast_rx_postdiv_counter    ),         
+        .bb_f_ux_synth_lc_fast_tx_postdiv_counter                 (bb_f_ux_synth_lc_fast_tx_postdiv_counter    ),         
+        .bb_f_ux_synth_lc_fast_tx_postdiv_fractional_en                    (bb_f_ux_synth_lc_fast_tx_postdiv_fractional_en       ),         
+        .bb_f_ux_synth_lc_med_f_rx_postdiv_hz                     (bb_f_ux_synth_lc_med_f_rx_postdiv_hz        ),         
+        .bb_f_ux_synth_lc_med_f_tx_postdiv_hz                     (bb_f_ux_synth_lc_med_f_tx_postdiv_hz        ),         
+        .bb_f_ux_synth_lc_med_rx_postdiv_counter                  (bb_f_ux_synth_lc_med_rx_postdiv_counter     ),         
+        .bb_f_ux_synth_lc_med_tx_postdiv_counter                  (bb_f_ux_synth_lc_med_tx_postdiv_counter     ),         
+        .bb_f_ux_synth_lc_med_tx_postdiv_fractional_en                     (bb_f_ux_synth_lc_med_tx_postdiv_fractional_en        ),         
+        .bb_f_ux_synth_lc_slow_f_rx_postdiv_hz                    (bb_f_ux_synth_lc_slow_f_rx_postdiv_hz       ),         
+        .bb_f_ux_synth_lc_slow_f_tx_postdiv_hz                    (bb_f_ux_synth_lc_slow_f_tx_postdiv_hz       ),         
+        .bb_f_ux_synth_lc_slow_rx_postdiv_counter                 (bb_f_ux_synth_lc_slow_rx_postdiv_counter    ),         
+        .bb_f_ux_synth_lc_slow_tx_postdiv_counter                 (bb_f_ux_synth_lc_slow_tx_postdiv_counter    ),         
+        .bb_f_ux_synth_lc_slow_tx_postdiv_fractional_en                    (bb_f_ux_synth_lc_slow_tx_postdiv_fractional_en       ),         
+        .bb_f_ux_tx_bond_size                                     (bb_f_ux_tx_bond_size                        ),         
+        .dec_bb_f_ux_tx_line_rate_bps                             (dec_bb_f_ux_tx_line_rate_bps                ),         
+        .bb_f_ux_tx_over_sample                                   (bb_f_ux_tx_over_sample                      ),         
+        .bb_f_ux_tx_pam4_graycode_en                              (bb_f_ux_tx_pam4_graycode_en                 ),         
+        .bb_f_ux_tx_pam4_precode_en                               (bb_f_ux_tx_pam4_precode_en                  ),         
+        .bb_f_ux_tx_protocol                                      (bb_f_ux_tx_protocol                         ),         
+        .bb_f_ux_tx_user_clk1_en                                  (bb_f_ux_tx_user_clk1_en                     ),         
+        .bb_f_ux_tx_user_clk1_mux                                 (bb_f_ux_tx_user_clk1_mux                    ),         
+        .bb_f_ux_tx_user_clk2_en                                  (bb_f_ux_tx_user_clk2_en                     ),         
+        .bb_f_ux_tx_user_clk2_mux                                 (bb_f_ux_tx_user_clk2_mux                    ),         
+        .bb_f_ux_tx_width                                         (bb_f_ux_tx_width                            ),         
+        .bb_f_ux_txrx_channel_operation                           (bb_f_ux_txrx_channel_operation              ),         
+        .bb_f_ux_txrx_line_encoding_type                          (bb_f_ux_txrx_line_encoding_type             ),         
+        .bb_f_ux_txrx_xcvr_speed_bucket                           (bb_f_ux_txrx_xcvr_speed_bucket              ),         
+        .bb_f_ux_ux_q_ckmux_cpu_attr                              (bb_f_ux_ux_q_ckmux_cpu_attr                 ),
+        .bb_f_ux_ux_q_e_rx_dp_pipe_attr                           (bb_f_ux_ux_q_e_rx_dp_pipe_attr              ),
+        .bb_f_ux_ux_q_e_tx_dp_pipe_attr                           (bb_f_ux_ux_q_e_tx_dp_pipe_attr              ),
+        .bb_f_ux_ux_q_i_pll0_hz                                   (bb_f_ux_ux_q_i_pll0_hz                      ),
+
+		.bb_f_ux_sim_mode                                   (bb_f_ux_sim_mode                       ),      
+		.bb_f_ux_q_10_to_1_ckmux_0_en_attr                                   (bb_f_ux_q_10_to_1_ckmux_0_en_attr                   ),   
+		.bb_f_ux_q_10_to_1_ckmux_1_en_attr                                   (bb_f_ux_q_10_to_1_ckmux_1_en_attr                      ),   
+		.bb_f_ux_fec_used                                           (bb_f_ux_fec_used ),
+        .bb_f_ux_cdr_bw_sel                                       (bb_f_ux_cdr_bw_sel                          ),         
+        .bb_f_ux_cdr_f_out_hz                                     (bb_f_ux_cdr_f_out_hz                        ), 
+	 .bb_f_ux_cdr_f_vco_hz                   (bb_f_ux_cdr_f_vco_hz),
+        .bb_f_ux_cdr_f_ref_hz                                     (bb_f_ux_cdr_f_ref_hz                        ),         
+        .bb_f_ux_cdr_l_counter                                    (bb_f_ux_cdr_l_counter                       ),         
+        .bb_f_ux_cdr_m_counter                                    (bb_f_ux_cdr_m_counter                       ),         
+        .bb_f_ux_cdr_n_counter                                    (bb_f_ux_cdr_n_counter                       ),         
+        .bb_f_ux_synth_lc_fast_f_out_hz                           (bb_f_ux_synth_lc_fast_f_out_hz              ),  
+	.bb_f_ux_synth_lc_fast_f_vco_hz           (bb_f_ux_synth_lc_fast_f_vco_hz),
+        .bb_f_ux_synth_lc_fast_f_ref_hz                           (bb_f_ux_synth_lc_fast_f_ref_hz              ),         
+        .bb_f_ux_synth_lc_fast_fractional_en                      (bb_f_ux_synth_lc_fast_fractional_en         ),         
+        .bb_f_ux_synth_lc_fast_k_counter                          (bb_f_ux_synth_lc_fast_k_counter             ),         
+        .bb_f_ux_synth_lc_fast_l_counter                          (bb_f_ux_synth_lc_fast_l_counter             ),         
+        .bb_f_ux_synth_lc_fast_m_counter                          (bb_f_ux_synth_lc_fast_m_counter             ),         
+        .bb_f_ux_synth_lc_fast_n_counter                          (bb_f_ux_synth_lc_fast_n_counter             ),         
+        .bb_f_ux_synth_lc_fast_primary_use                        (bb_f_ux_synth_lc_fast_primary_use           ),         
+        .bb_f_ux_synth_lc_med_f_out_hz                            (bb_f_ux_synth_lc_med_f_out_hz               ),    
+	.bb_f_ux_synth_lc_med_f_vco_hz            (bb_f_ux_synth_lc_med_f_vco_hz),
+        .bb_f_ux_synth_lc_med_f_ref_hz                            (bb_f_ux_synth_lc_med_f_ref_hz               ),         
+        .bb_f_ux_synth_lc_med_fractional_en                       (bb_f_ux_synth_lc_med_fractional_en          ),         
+        .bb_f_ux_synth_lc_med_k_counter                           (bb_f_ux_synth_lc_med_k_counter              ),         
+        .bb_f_ux_synth_lc_med_l_counter                           (bb_f_ux_synth_lc_med_l_counter              ),         
+        .bb_f_ux_synth_lc_med_m_counter                           (bb_f_ux_synth_lc_med_m_counter              ),         
+        .bb_f_ux_synth_lc_med_n_counter                           (bb_f_ux_synth_lc_med_n_counter              ),         
+        .bb_f_ux_synth_lc_med_primary_use                         (bb_f_ux_synth_lc_med_primary_use            ),         
+        .bb_f_ux_synth_lc_slow_f_out_hz                           (bb_f_ux_synth_lc_slow_f_out_hz              ), 
+	.bb_f_ux_synth_lc_slow_f_vco_hz           (bb_f_ux_synth_lc_slow_f_vco_hz),
+        .bb_f_ux_synth_lc_slow_f_ref_hz                           (bb_f_ux_synth_lc_slow_f_ref_hz              ),         
+        .bb_f_ux_synth_lc_slow_fractional_en                      (bb_f_ux_synth_lc_slow_fractional_en         ),         
+        .bb_f_ux_synth_lc_slow_k_counter                          (bb_f_ux_synth_lc_slow_k_counter             ),         
+        .bb_f_ux_synth_lc_slow_l_counter                          (bb_f_ux_synth_lc_slow_l_counter             ),         
+        .bb_f_ux_synth_lc_slow_m_counter                          (bb_f_ux_synth_lc_slow_m_counter             ),         
+        .bb_f_ux_synth_lc_slow_n_counter                          (bb_f_ux_synth_lc_slow_n_counter             ),         
+        .bb_f_ux_synth_lc_slow_primary_use                        (bb_f_ux_synth_lc_slow_primary_use           ),         
+        .bb_f_ux_tx_pll                                           (bb_f_ux_tx_pll                              ),         
+        .bb_f_ux_tx_pll_bw_sel                                    (bb_f_ux_tx_pll_bw_sel                       ),
+	    	.bb_f_ux_enable_an_lt_support               (bb_f_ux_enable_an_lt_support               ),
+	      .bb_f_ux_primary_use                        (bb_f_ux_primary_use                        ),
+	      .bb_f_ux_tx_spread_spectrum_en              (bb_f_ux_tx_spread_spectrum_en              ),
+	      .bb_f_ux_tx_tuning_hint                     (bb_f_ux_tx_tuning_hint                     ),
+    	  .bb_f_ux_rx_tuning_hint                     (bb_f_ux_rx_tuning_hint                     ), 
+        .bb_f_ux_synth_lc_fb_div_n_frac_mode            (bb_f_ux_synth_lc_fb_div_n_frac_mode    ), 
+        .bb_f_ux_tx_fb_div_emb_mult_counter           (bb_f_ux_tx_fb_div_emb_mult_counter   ),
+//
+        .bb_f_bk_package_type                                      (bb_f_bk_package_type           ),
+        .bb_f_bk_bk_pll_fullrate                    (bb_f_bk_bk_pll_fullrate		           ),
+	.bb_f_bk_an_mode                            (bb_f_bk_an_mode                               ),
+        .bb_f_bk_bk_dl_enable                       (bb_f_bk_bk_dl_enable                          ),
+        .bb_f_bk_bk_en_rxdat_profile                (bb_f_bk_bk_en_rxdat_profile                   ),
+        .bb_f_bk_bk_rx_bdst_rcon_en                         (bb_f_bk_bk_rx_bdst_rcon_en                    ), 
+        .bb_f_bk_bk_rx_ppmd_rcon_en                         (bb_f_bk_bk_rx_ppmd_rcon_en                    ),
+        .bb_f_bk_bk_lnx_txovf_rxbdstb_inten         (bb_f_bk_bk_lnx_txovf_rxbdstb_inten            ),
+        .bb_f_bk_bk_lnx_txudf_pldrstb_inten         (bb_f_bk_bk_lnx_txudf_pldrstb_inten            ),
+        .bb_f_bk_bk_rx_lat_bit_for_async            (bb_f_bk_bk_rx_lat_bit_for_async               ),
+        .bb_f_bk_bk_rxbit_cntr_pma                  (bb_f_bk_bk_rxbit_cntr_pma                     ),
+        .bb_f_bk_bk_rxbit_rollover                  (bb_f_bk_bk_rxbit_rollover                     ),
+   //   .bb_f_bk_bk_rxdat_1cnt_thld_high            (bb_f_bk_bk_rxdat_1cnt_thld_high               ),
+   //   .bb_f_bk_bk_rxdat_1cnt_thld_low             (bb_f_bk_bk_rxdat_1cnt_thld_low                ),
+        .bb_f_bk_bk_sel_tx_user_data                (bb_f_bk_bk_sel_tx_user_data                   ),
+        .bb_f_bk_bk_car_tx_clk_src_sel              (bb_f_bk_bk_car_tx_clk_src_sel                 ),
+        .bb_f_bk_bk_tx_lnx_ovf_inten_dirsignal      (bb_f_bk_bk_tx_lnx_ovf_inten_dirsignal         ),
+        .bb_f_bk_bk_tx_lnx_rxbadst_inten_dirsignal  (bb_f_bk_bk_tx_lnx_rxbadst_inten_dirsignal     ),
+        .bb_f_bk_bk_tx_lnx_udf_inten_dirsignal      (bb_f_bk_bk_tx_lnx_udf_inten_dirsignal         ),
+        .bb_f_bk_bk_tx_usr_data_0                   (bb_f_bk_bk_tx_usr_data_0                      ),
+        .bb_f_bk_bk_tx_usr_data_1                   (bb_f_bk_bk_tx_usr_data_1                      ),
+        .bb_f_bk_bk_tx_usr_data_2                   (bb_f_bk_bk_tx_usr_data_2                      ),
+        .bb_f_bk_bk_tx_usr_data_3                   (bb_f_bk_bk_tx_usr_data_3                      ),
+        .bb_f_bk_bti_protected                      (bb_f_bk_bti_protected                         ),
+        .bb_f_bk_bk_bitprog_update_cfg              (bb_f_bk_bk_bitprog_update_cfg                 ),
+        .bb_f_bk_engineered_link_mode               (bb_f_bk_engineered_link_mode                  ),
+        .bb_f_bk_loopback_mode                      (bb_f_bk_loopback_mode                         ),
+        .bb_f_bk_pam4_rxgrey_code                   (bb_f_bk_pam4_rxgrey_code                      ),
+        .bb_f_bk_pll_n_counter                      (bb_f_bk_pll_n_counter                         ),
+        .bb_f_bk_pll_pcs3334_ratio                  (bb_f_bk_pll_pcs3334_ratio                     ),
+        .bb_f_bk_pll_rx_pcs3334_ratio               (bb_f_bk_pll_rx_pcs3334_ratio                     ),
+        .bb_f_bk_refclk_source_lane_pll             (bb_f_bk_refclk_source_lane_pll                ),
+        .bb_f_bk_rx_ber_cnt_limit_lsb               (bb_f_bk_rx_ber_cnt_limit_lsb                  ),
+        .bb_f_bk_rx_ber_cnt_limit_msb               (bb_f_bk_rx_ber_cnt_limit_msb                  ),
+        .bb_f_bk_rx_ber_cnt_mask_0_31               (bb_f_bk_rx_ber_cnt_mask_0_31                  ),
+        .bb_f_bk_rx_ber_cnt_mask_32_63              (bb_f_bk_rx_ber_cnt_mask_32_63                 ),
+        .bb_f_bk_rx_ber_cnt_mask_64_95              (bb_f_bk_rx_ber_cnt_mask_64_95                 ),
+        .bb_f_bk_rx_ber_cnt_mask_96_127             (bb_f_bk_rx_ber_cnt_mask_96_127                ),
+        .bb_f_bk_rx_prbs_common_en                  (bb_f_bk_rx_prbs_common_en                     ),
+        .bb_f_bk_rx_prbs_mode                       (bb_f_bk_rx_prbs_mode                          ),
+        .bb_f_bk_sup_mode                           (bb_f_bk_sup_mode                              ),
+        .bb_f_bk_rx_user_clk1_en                    (bb_f_bk_rx_user_clk1_en                       ),
+        .bb_f_bk_rx_user_clk1_sel                   (bb_f_bk_rx_user_clk1_sel                      ),
+        .bb_f_bk_rx_user_clk2_en                    (bb_f_bk_rx_user_clk2_en                       ),
+        .bb_f_bk_rx_user_clk2_sel                   (bb_f_bk_rx_user_clk2_sel                      ),
+        .bb_f_bk_tx_bond_size                       (bb_f_bk_tx_bond_size                          ),
+        .bb_f_bk_tx_line_rate                       (bb_f_bk_tx_line_rate                          ),
+        .bb_f_bk_rx_precode_en                      (bb_f_bk_rx_precode_en                         ),
+        .bb_f_bk_tx_prbs_en                         (bb_f_bk_tx_prbs_en                            ),
+        .bb_f_bk_tx_prbs_mode                       (bb_f_bk_tx_prbs_mode                          ),
+        .bb_f_bk_tx_precode_en                      (bb_f_bk_tx_precode_en                         ),
+        .bb_f_bk_tx_protocol                        (bb_f_bk_tx_protocol                           ),
+        .bb_f_bk_tx_user_clk1_en                    (bb_f_bk_tx_user_clk1_en                       ),
+        .bb_f_bk_tx_user_clk1_sel                   (bb_f_bk_tx_user_clk1_sel                      ),
+        .bb_f_bk_tx_user_clk2_en                    (bb_f_bk_tx_user_clk2_en                       ),
+        .bb_f_bk_tx_user_clk2_sel                   (bb_f_bk_tx_user_clk2_sel                      ),
+        .bb_f_bk_txrx_line_encoding_type            (bb_f_bk_txrx_line_encoding_type               ),
+        .bb_f_bk_txrx_xcvr_speed_bucket             (bb_f_bk_txrx_xcvr_speed_bucket                ),
+        .bb_f_bk_rx_invert_p_and_n                  (bb_f_bk_rx_invert_p_and_n                     ),
+        .bb_f_bk_tx_invert_p_and_n                  (bb_f_bk_tx_invert_p_and_n                     ),
+        .bb_f_bk_silicon_rev                		(bb_f_bk_silicon_rev                		   ),
+        .bb_f_bk_fec_used                           (bb_f_bk_fec_used                              ),
+        .bb_f_bk_bk_seq0_enable                     (bb_f_bk_bk_seq0_enable                        ),
+        .bb_f_bk_bk_seq1_enable                     (bb_f_bk_bk_seq1_enable                        ),
+        .bb_f_bk_bk_seq2_enable                     (bb_f_bk_bk_seq2_enable                        ),
+        .bb_f_bk_bk_seq3_enable                     (bb_f_bk_bk_seq3_enable                        ),
+        .bb_f_bk_bk_seq4_enable                     (bb_f_bk_bk_seq4_enable                        ),
+        .bb_f_bk_bk_seq5_enable                     (bb_f_bk_bk_seq5_enable                        ),
+        .bb_f_bk_bk_seq6_enable                     (bb_f_bk_bk_seq6_enable                        ),
+        .bb_f_bk_bk_seq7_enable                     (bb_f_bk_bk_seq7_enable                        ),
+        .bb_f_bk_bk_seq8_enable                     (bb_f_bk_bk_seq8_enable                        ),
+        .bb_f_bk_bk_seq9_enable                     (bb_f_bk_bk_seq9_enable                        ),
+        .bb_f_bk_bk_seq10_enable                    (bb_f_bk_bk_seq10_enable                       ),
+        .bb_f_bk_bk_seq42_enable                    (bb_f_bk_bk_seq42_enable                       ),
+        .bb_f_bk_bk_seq43_enable                    (bb_f_bk_bk_seq43_enable                       ),
+        .bb_f_bk_bk_seq44_enable                    (bb_f_bk_bk_seq44_enable                       ),
+        .bb_f_bk_bk_seq45_enable                    (bb_f_bk_bk_seq45_enable                       ),
+        .bb_f_bk_bk_seq46_enable                    (bb_f_bk_bk_seq46_enable                       ),
+        .bb_f_bk_bk_seq31_addr                      (bb_f_bk_bk_seq31_addr                         ),
+        .bb_f_bk_bk_seq31_data                      (bb_f_bk_bk_seq31_data                         ),
+        .bb_f_bk_bk_seq31_rdata_unmask              (bb_f_bk_bk_seq31_rdata_unmask                 ),
+        .bb_f_bk_bk_seq31_rdwrb                     (bb_f_bk_bk_seq31_rdwrb                        ),
+        .bb_f_bk_bk_seq32_addr                      (bb_f_bk_bk_seq32_addr                         ),
+        .bb_f_bk_bk_seq32_data                      (bb_f_bk_bk_seq32_data                         ),
+        .bb_f_bk_bk_seq32_enable                    (bb_f_bk_bk_seq32_enable                       ),
+        .bb_f_bk_bk_seq32_rdata_unmask              (bb_f_bk_bk_seq32_rdata_unmask                 ),
+        .bb_f_bk_bk_seq32_rdwrb                     (bb_f_bk_bk_seq32_rdwrb                        ),
+        .bb_f_bk_bk_seq33_addr                      (bb_f_bk_bk_seq33_addr                         ),
+        .bb_f_bk_bk_seq33_data                      (bb_f_bk_bk_seq33_data                         ),
+        .bb_f_bk_bk_seq33_enable                    (bb_f_bk_bk_seq33_enable                       ),
+        .bb_f_bk_bk_seq33_rdata_unmask              (bb_f_bk_bk_seq33_rdata_unmask                 ),
+        .bb_f_bk_bk_seq33_rdwrb                     (bb_f_bk_bk_seq33_rdwrb                        ),
+        .bb_f_bk_bk_seq34_addr                      (bb_f_bk_bk_seq34_addr                         ),
+        .bb_f_bk_bk_seq34_data                      (bb_f_bk_bk_seq34_data                         ),
+        .bb_f_bk_bk_seq34_enable                    (bb_f_bk_bk_seq34_enable                       ),
+        .bb_f_bk_bk_seq34_rdata_unmask              (bb_f_bk_bk_seq34_rdata_unmask                 ),
+        .bb_f_bk_bk_seq34_rdwrb                     (bb_f_bk_bk_seq34_rdwrb                        ),
+        .bb_f_bk_bk_seq35_addr                      (bb_f_bk_bk_seq35_addr                         ),
+        .bb_f_bk_bk_seq35_data                      (bb_f_bk_bk_seq35_data                         ),
+        .bb_f_bk_bk_seq35_enable                    (bb_f_bk_bk_seq35_enable                       ),
+        .bb_f_bk_bk_seq35_rdata_unmask              (bb_f_bk_bk_seq35_rdata_unmask                 ),
+        .bb_f_bk_bk_seq35_rdwrb                     (bb_f_bk_bk_seq35_rdwrb                        ),
+        .bb_f_bk_bk_seq36_addr                      (bb_f_bk_bk_seq36_addr                         ),
+        .bb_f_bk_bk_seq36_data                      (bb_f_bk_bk_seq36_data                         ),
+        .bb_f_bk_bk_seq36_enable                    (bb_f_bk_bk_seq36_enable                       ),
+        .bb_f_bk_bk_seq36_rdata_unmask              (bb_f_bk_bk_seq36_rdata_unmask                 ),
+        .bb_f_bk_bk_seq36_rdwrb                     (bb_f_bk_bk_seq36_rdwrb                        ),
+        .bb_f_bk_bk_seq37_addr                      (bb_f_bk_bk_seq37_addr                         ),
+        .bb_f_bk_bk_seq37_data                      (bb_f_bk_bk_seq37_data                         ),
+        .bb_f_bk_bk_seq37_enable                    (bb_f_bk_bk_seq37_enable                       ),
+        .bb_f_bk_bk_seq37_rdata_unmask              (bb_f_bk_bk_seq37_rdata_unmask                 ),
+        .bb_f_bk_bk_seq37_rdwrb                     (bb_f_bk_bk_seq37_rdwrb                        ),
+        .bb_f_bk_bk_seq38_addr                      (bb_f_bk_bk_seq38_addr                         ),
+        .bb_f_bk_bk_seq38_data                      (bb_f_bk_bk_seq38_data                         ),
+        .bb_f_bk_bk_seq38_enable                    (bb_f_bk_bk_seq38_enable                       ),
+        .bb_f_bk_bk_seq38_rdata_unmask              (bb_f_bk_bk_seq38_rdata_unmask                 ),
+        .bb_f_bk_bk_seq38_rdwrb                     (bb_f_bk_bk_seq38_rdwrb                        ),
+        .bb_f_bk_bk_seq39_addr                      (bb_f_bk_bk_seq39_addr                         ),
+        .bb_f_bk_bk_seq39_data                      (bb_f_bk_bk_seq39_data                         ),
+        .bb_f_bk_bk_seq39_enable                    (bb_f_bk_bk_seq39_enable                       ),
+        .bb_f_bk_bk_seq39_rdata_unmask              (bb_f_bk_bk_seq39_rdata_unmask                 ),
+        .bb_f_bk_bk_seq39_rdwrb                     (bb_f_bk_bk_seq39_rdwrb                        ),
+        .bb_f_bk_bk_seq40_addr                      (bb_f_bk_bk_seq40_addr                         ),
+        .bb_f_bk_bk_seq40_data                      (bb_f_bk_bk_seq40_data                         ),
+        .bb_f_bk_bk_seq40_enable                    (bb_f_bk_bk_seq40_enable                       ),
+        .bb_f_bk_bk_seq40_rdata_unmask              (bb_f_bk_bk_seq40_rdata_unmask                 ),
+        .bb_f_bk_bk_seq40_rdwrb                     (bb_f_bk_bk_seq40_rdwrb                        ),
+        .bb_f_bk_bk_seq41_addr                      (bb_f_bk_bk_seq41_addr                         ),
+        .bb_f_bk_bk_seq41_data                      (bb_f_bk_bk_seq41_data                         ),
+        .bb_f_bk_bk_seq41_enable                    (bb_f_bk_bk_seq41_enable                       ),
+        .bb_f_bk_bk_seq41_rdata_unmask              (bb_f_bk_bk_seq41_rdata_unmask                 ),
+        .bb_f_bk_bk_seq41_rdwrb                     (bb_f_bk_bk_seq41_rdwrb                        ),
+        .bb_f_bk_bk_seq59_addr                      (bb_f_bk_bk_seq59_addr                         ),
+        .bb_f_bk_bk_seq59_data                      (bb_f_bk_bk_seq59_data                         ),
+        .bb_f_bk_bk_seq59_enable                    (bb_f_bk_bk_seq59_enable                       ),
+        .bb_f_bk_bk_seq59_rdata_unmask              (bb_f_bk_bk_seq59_rdata_unmask                 ),
+        .bb_f_bk_bk_seq59_rdwrb                     (bb_f_bk_bk_seq59_rdwrb                        ),
+        .bb_f_bk_bk_seq60_addr                      (bb_f_bk_bk_seq60_addr                         ),
+        .bb_f_bk_bk_seq60_data                      (bb_f_bk_bk_seq60_data                         ),
+        .bb_f_bk_bk_seq60_enable                    (bb_f_bk_bk_seq60_enable                       ),
+        .bb_f_bk_bk_seq60_rdata_unmask              (bb_f_bk_bk_seq60_rdata_unmask                 ),
+        .bb_f_bk_bk_seq60_rdwrb                     (bb_f_bk_bk_seq60_rdwrb                        ),
+        .bb_f_bk_bk_seq61_addr                      (bb_f_bk_bk_seq61_addr                         ),
+        .bb_f_bk_bk_seq61_data                      (bb_f_bk_bk_seq61_data                         ),
+        .bb_f_bk_bk_seq61_enable                    (bb_f_bk_bk_seq61_enable                       ),
+        .bb_f_bk_bk_seq61_rdata_unmask              (bb_f_bk_bk_seq61_rdata_unmask                 ),
+        .bb_f_bk_bk_seq61_rdwrb                     (bb_f_bk_bk_seq61_rdwrb                        ),
+        .bb_f_bk_bk_seq62_addr                      (bb_f_bk_bk_seq62_addr                         ),
+        .bb_f_bk_bk_seq62_data                      (bb_f_bk_bk_seq62_data                         ),
+        .bb_f_bk_bk_seq62_enable                    (bb_f_bk_bk_seq62_enable                       ),
+        .bb_f_bk_bk_seq62_rdata_unmask              (bb_f_bk_bk_seq62_rdata_unmask                 ),
+        .bb_f_bk_bk_seq62_rdwrb                     (bb_f_bk_bk_seq62_rdwrb                        ),
+        .bb_f_bk_bk_seq63_addr                      (bb_f_bk_bk_seq63_addr                         ),
+        .bb_f_bk_bk_seq63_data                      (bb_f_bk_bk_seq63_data                         ),
+        .bb_f_bk_bk_seq63_enable                    (bb_f_bk_bk_seq63_enable                       ),
+        .bb_f_bk_bk_seq63_rdata_unmask              (bb_f_bk_bk_seq63_rdata_unmask                 ),
+        .bb_f_bk_bk_seq63_rdwrb                     (bb_f_bk_bk_seq63_rdwrb                        ),
+ 
+
+        .bb_f_aib_aibadapt_tx_loopback_mode                       (bb_f_aib_aibadapt_tx_loopback_mode                       ),
+        .bb_f_aib_aibadapt_tx_sup_mode                            (bb_f_aib_aibadapt_tx_sup_mode                            ),
+        .bb_f_aib_silicon_rev                                     (bb_f_aib_silicon_rev                                     ),
+
+        .bb_f_aib_aibadapt_rx_rx_datapath_tb_sel                  (bb_f_aib_aibadapt_rx_rx_datapath_tb_sel),
+        .bb_f_aib_aibadapt_rx_rx_user_clk_sel                     (bb_f_aib_aibadapt_rx_rx_user_clk_sel),
+		.bb_f_aib_aibadapt_tx_tx_user_clk_sel                     (bb_f_aib_aibadapt_tx_tx_user_clk_sel),
+        .bb_m_aib_rx_silicon_rev                                  (bb_m_aib_rx_silicon_rev                                  ),
+
+        .bb_m_aib_rx_aib_dllstr_align_st_dftmuxsel              (bb_m_aib_rx_aib_dllstr_align_st_dftmuxsel),
+        .bb_m_aib_rx_dft_hssitestip_dll_dcc_en                  (bb_m_aib_rx_dft_hssitestip_dll_dcc_en    ),
+        .bb_m_aib_rx_op_mode                                    (bb_m_aib_rx_op_mode                      ),
+        .bb_m_aib_rx_redundancy_en                              (bb_m_aib_rx_redundancy_en                ),
+        .bb_m_aib_rx_sup_mode                                   (bb_m_aib_rx_sup_mode                     ),
+
+        .bb_m_aib_tx_silicon_rev                                  (bb_m_aib_tx_silicon_rev                                  ),
+
+        .bb_m_aib_tx_aib_tx_dcc_dft            (bb_m_aib_tx_aib_tx_dcc_dft           ),
+        .bb_m_aib_tx_aib_tx_dcc_dft_sel        (bb_m_aib_tx_aib_tx_dcc_dft_sel       ),
+        .bb_m_aib_tx_aib_tx_dcc_st_dftmuxsel   (bb_m_aib_tx_aib_tx_dcc_st_dftmuxsel  ),
+        .bb_m_aib_tx_dfd_dll_dcc_en            (bb_m_aib_tx_dfd_dll_dcc_en           ),
+        .bb_m_aib_tx_dft_hssitestip_dll_dcc_en (bb_m_aib_tx_dft_hssitestip_dll_dcc_en),
+        .bb_m_aib_tx_op_mode                   (bb_m_aib_tx_op_mode                  ),
+        .bb_m_aib_tx_redundancy_en             (bb_m_aib_tx_redundancy_en            ),
+        .bb_m_aib_tx_sup_mode                  (bb_m_aib_tx_sup_mode                 ),
+
+     
+        .bb_m_hdpldadapt_rx_silicon_rev                           (bb_m_hdpldadapt_rx_silicon_rev                           ),
+
+        .bb_m_hdpldadapt_rx_fifo_mode                             (bb_m_hdpldadapt_rx_fifo_mode                            ),
+        .bb_m_hdpldadapt_rx_fifo_width                            (bb_m_hdpldadapt_rx_fifo_width                           ), 
+
+        .bb_m_hdpldadapt_rx_hdpldadapt_pld_rx_clk1_dcm_hz         (bb_m_hdpldadapt_rx_hdpldadapt_pld_rx_clk1_dcm_hz        ), 
+
+        .bb_m_hdpldadapt_rx_hdpldadapt_speed_grade                (bb_m_hdpldadapt_rx_hdpldadapt_speed_grade               ), 
+        .bb_m_hdpldadapt_rx_pld_clk1_sel                          (bb_m_hdpldadapt_rx_pld_clk1_sel                         ), 
+
+      
+		.bb_m_hdpldadapt_tx_pld_clk1_sel                          (bb_m_hdpldadapt_tx_pld_clk1_sel                         ), 
+
+
+
+        .bb_m_hdpldadapt_tx_silicon_rev                           (bb_m_hdpldadapt_tx_silicon_rev                           ),
+
+        .bb_m_hdpldadapt_tx_duplex_mode                           (bb_m_hdpldadapt_tx_duplex_mode                          ), 
+        .bb_m_hdpldadapt_tx_fifo_mode                             (bb_m_hdpldadapt_tx_fifo_mode                            ), 
+        .bb_m_hdpldadapt_tx_fifo_width                            (bb_m_hdpldadapt_tx_fifo_width                           ), 
+
+        .bb_m_hdpldadapt_tx_hdpldadapt_pld_tx_clk1_dcm_hz         (bb_m_hdpldadapt_tx_hdpldadapt_pld_tx_clk1_dcm_hz        ), 
+       
+        .bb_m_hdpldadapt_tx_hdpldadapt_speed_grade                (bb_m_hdpldadapt_tx_hdpldadapt_speed_grade               ), 
+
+
+
+      
+
+        .bb_m_hdpldadapt_avmm2_silicon_rev                        (bb_m_hdpldadapt_avmm2_silicon_rev                        ) ,
+	    .bb_f_aib_tx_user_clk_hz  (bb_f_aib_tx_user_clk_hz) ,
+	    .bb_f_aib_rx_user_clk_hz  (bb_f_aib_rx_user_clk_hz) ,
+	    .bb_f_aib_hssi_tx_transfer_clk_hz (bb_f_aib_hssi_tx_transfer_clk_hz),
+	    .bb_f_aib_hssi_rx_transfer_clk_hz (bb_f_aib_hssi_rx_transfer_clk_hz),
+	    .bb_m_hdpldadapt_pld_avmm1_clk_rowclk_hz (bb_m_hdpldadapt_pld_avmm1_clk_rowclk_hz),
+	    .bb_m_hdpldadapt_pld_avmm2_clk_rowclk_hz (bb_m_hdpldadapt_pld_avmm2_clk_rowclk_hz)
+      ) hip_inst (
+@@  if {$enable_cdr_clkout == 1} { 
+        .o_cdr_divclk                                             (o_cdr_divclk              ),
+@@  }
+        .i_clk_ref                                                (i_clk_ref                 ),
+        .i_clk_sys                                                (i_clk_sys                 ),
+        .i_clk_rx                                                 (int_clk_rx                ),
+        .i_clk_tx                                                 (int_clk_tx                ),
+        .i_rx_rst_n                                               (i_rx_rst_n                ),
+        .i_tx_rst_n                                               (i_tx_rst_n                ),
+        .i_rst_n                                                  (i_rst_n                   ),
+        .i_rx_serial                                              (i_rx_serial               ),
+        .i_rx_serial_n                                            (i_rx_serial_n             ),
+        .o_tx_serial                                              (o_tx_serial               ),
+        .o_tx_serial_n                                            (o_tx_serial_n             ),
+        .tx_parallel_data                                         (tx_parallel_data          ),
+        .rx_parallel_data                                         (rx_parallel_data          ),
+        .hdpldadapt_in_link                                       (hdpldadapt_in_link        ),
+        .hdpldadapt_out_link                                      (hdpldadapt_out_link       ),
+				
+        .i_stats_snapshot                                         (i_stats_snapshot          ),
+        .i_tx_ptp_async_cal_sel                                   (tx_dl_measure_sel      ),
+        .i_rx_ptp_async_cal_sel                                   (rx_dl_measure_sel      ),
+        .i_ptp_async_cal_pulse                                    (latency_sclk       ),
+        .o_tx_ptp_async_pulse                                     (tx_dl_async_pulse        ),
+        .o_rx_ptp_async_pulse                                     (rx_dl_async_pulse        ),
+        .xcvr_rxcdr_locked                                        (xcvr_rxcdr_locked         ),
+        .xcvr_txpll_locked                                        (xcvr_txpll_locked         ),
+@@ if {$XCVR_TYPE_GUI == "0"} {
+        .xcvr_pcs_txstatus                                        (xcvr_pcs_txstatus         ),
+@@ }
+// ---------------------------------------------------------------
+     //  PTP auto connection
+        .ptp_link                                                 (ptp_link                  ),
+        .ptp_placement_virtual                                    (ptp_placement_virtual     ),
+
+    .src_placement_virtual                                    (src_placement_virtual     ),
+	.pld_hssi_rx_transfer_en				(pld_hssi_rx_transfer_en ),
+	.pld_rx_fifo_ready					(pld_rx_fifo_ready ),
+	.pld_fabric_tx_transfer_en				(pld_fabric_tx_transfer_en ),
+	.pld_tx_fifo_ready					(pld_tx_fifo_ready ),
+
+
+// ---------------------------------------------------------------
+     //  for AVMM1 bb ports
+        .pld_avmm1_busy                                           ( pld_avmm1_busy),
+        .pld_avmm1_clk_rowclk                                     ( pld_avmm1_clk_rowclk       ),
+        .pld_avmm1_cmdfifo_wr_full                                ( pld_avmm1_cmdfifo_wr_full  ),
+        .pld_avmm1_cmdfifo_wr_pfull                               ( pld_avmm1_cmdfifo_wr_pfull ),
+        .pld_avmm1_read                                           ( pld_avmm1_read             ),
+        .pld_avmm1_readdata                                       ( pld_avmm1_readdata[7:0]    ),
+        .pld_avmm1_readdatavalid                                  ( pld_avmm1_readdatavalid    ),
+        .pld_avmm1_reg_addr                                       ( pld_avmm1_reg_addr[9:0]    ),
+        .pld_avmm1_request                                        ( pld_avmm1_request          ),
+        .pld_avmm1_reserved_in                                    ( pld_avmm1_reserved_in[8:0] ),
+        .pld_avmm1_reserved_out                                   ( pld_avmm1_reserved_out[2:0]),
+        .pld_avmm1_write                                          ( pld_avmm1_write            ),
+        .pld_avmm1_writedata                                      ( pld_avmm1_writedata[7:0]   ),
+      //  .pld_chnl_cal_done                                        ( pld_chnl_cal_done          ),
+        .pld_hssi_osc_transfer_en                                 ( pld_hssi_osc_transfer_en   ),
+     //  for AVMM2 bb ports
+        .hip_avmm_read                                            ( hip_avmm_read              ),
+        .hip_avmm_readdata                                        ( hip_avmm_readdata          ),
+        .hip_avmm_readdatavalid                                   ( hip_avmm_readdatavalid     ),
+        .hip_avmm_reg_addr                                        ( hip_avmm_reg_addr          ),
+        .hip_avmm_reserved_out                                    ( hip_avmm_reserved_out      ),
+        .hip_avmm_write                                           ( hip_avmm_write             ),
+        .hip_avmm_writedata                                       ( hip_avmm_writedata         ),
+        .hip_avmm_writedone                                       ( hip_avmm_writedone         ),
+        .pld_avmm2_busy                                           ( pld_avmm2_busy             ),
+        .pld_avmm2_clk_rowclk                                     ( pld_avmm2_clk_rowclk       ),
+        .pld_avmm2_cmdfifo_wr_full                                ( pld_avmm2_cmdfifo_wr_full  ),
+        .pld_avmm2_cmdfifo_wr_pfull                               ( pld_avmm2_cmdfifo_wr_pfull ),
+        .pld_avmm2_request                                        ( pld_avmm2_request          ),
+        // .pld_pll_cal_done                                         ( pld_pll_cal_done           ),
+        .pld_avmm2_write                                          ( pld_avmm2_write            ),
+        .pld_avmm2_read                                           ( pld_avmm2_read             ),
+        .pld_avmm2_reg_addr                                       ( pld_avmm2_reg_addr         ),
+        .pld_avmm2_readdata                                       ( pld_avmm2_readdata         ),
+        .pld_avmm2_writedata                                      ( pld_avmm2_writedata        ),
+        .pld_avmm2_readdatavalid                                  ( pld_avmm2_readdatavalid    ),
+        .pld_avmm2_reserved_in                                    ( pld_avmm2_reserved_in      ), 
+        .pld_avmm2_reserved_out                                   ( pld_avmm2_reserved_out     )
+);
+@@ } 
+
+endmodule
+

@@ -1,0 +1,316 @@
+// (C) 2001-2025 Altera Corporation. All rights reserved.
+// Your use of Altera Corporation's design tools, logic functions and other 
+// software and tools, and its AMPP partner logic functions, and any output 
+// files from any of the foregoing (including device programming or simulation 
+// files), and any associated documentation or information are expressly subject 
+// to the terms and conditions of the Altera Program License Subscription 
+// Agreement, Altera IP License Agreement, or other applicable 
+// license agreement, including, without limitation, that your use is for the 
+// sole purpose of programming logic devices manufactured by Altera and sold by 
+// Altera or its authorized distributors.  Please refer to the applicable 
+// agreement for further details.
+
+
+`timescale 1ps/1ps
+
+module $module_name
+#(
+    parameter LANE_NUM = 8
+)
+(
+    // Clock and Reset
+    input   wire                                i_reconfig_clk, 
+    input   wire                                i_reconfig_reset,
+
+    // EHIP Reconfig Interface - USER AVMM MASTER can be Example Design JTAG Master
+    input   wire    [13:0]                      i_reconfig_eth_addr,
+    input   wire    [3:0]                       i_reconfig_eth_byteenable,
+    input   wire                                i_reconfig_eth_read,
+    input   wire                                i_reconfig_eth_write,
+    input   wire    [31:0]                      i_reconfig_eth_writedata,
+    output  wire     [31:0]                      o_reconfig_eth_readdata,
+    output  wire                                o_reconfig_eth_readdata_valid,
+    output  wire                                 o_reconfig_eth_waitrequest,
+
+    // EHIP Combined Reconfig Interface AVMM SLAVE from Soft, EHIP, FEC 
+    output  wire    [13:0]                      i_reconfig_eth_addr_jtag_arb,
+    output  wire    [3:0]                       i_reconfig_eth_byteenable_jtag_arb,
+    output  wire                                i_reconfig_eth_read_jtag_arb,
+    output  wire                                i_reconfig_eth_write_jtag_arb,
+    output  wire    [31:0]                      i_reconfig_eth_writedata_jtag_arb,
+    input   wire    [31:0]                      o_reconfig_eth_readdata_jtag_arb,
+    input   wire                                o_reconfig_eth_readdata_valid_jtag_arb,
+    input   wire                                o_reconfig_eth_waitrequest_jtag_arb,
+
+    // XCVR Reconfig Interface - USER AVMM MASTER can be Example Design JTAG Master
+    input   wire    [LANE_NUM-1:0]              i_reconfig_xcvr_write,
+    input   wire    [LANE_NUM*4-1:0]            i_reconfig_xcvr_byteenable,
+    input   wire    [LANE_NUM-1:0]              i_reconfig_xcvr_read,
+    input   wire    [LANE_NUM*18-1:0]           i_reconfig_xcvr_addr,
+    input   wire    [LANE_NUM*32-1:0]           i_reconfig_xcvr_writedata,
+    output  wire    [LANE_NUM*32-1:0]            o_reconfig_xcvr_readdata,
+    output  wire    [LANE_NUM-1:0]               o_reconfig_xcvr_readdata_valid,
+    output  wire    [LANE_NUM-1:0]               o_reconfig_xcvr_waitrequest,
+
+    // XCVR Combined Reconfig Interface AVMM SLAVE from Transceiver 0 trhough 7
+    output  wire    [LANE_NUM-1:0]              i_reconfig_xcvr_write_jtag_arb,
+    output  wire    [LANE_NUM*4-1:0]            i_reconfig_xcvr_byteenable_jtag_arb,
+    output  wire    [LANE_NUM-1:0]              i_reconfig_xcvr_read_jtag_arb,
+    output  wire    [LANE_NUM*18-1:0]           i_reconfig_xcvr_addr_jtag_arb,
+    output  wire    [LANE_NUM*32-1:0]           i_reconfig_xcvr_writedata_jtag_arb,
+    input   wire    [LANE_NUM*32-1:0]           o_reconfig_xcvr_readdata_jtag_arb,
+    input   wire    [LANE_NUM-1:0]              o_reconfig_xcvr_readdata_valid_jtag_arb,
+    input   wire    [LANE_NUM-1:0]              o_reconfig_xcvr_waitrequest_jtag_arb
+
+
+);
+
+
+    // JTAG Master
+    wire    [21:0]      jtag_addr;
+    wire                jtag_read;
+    wire    [31:0]      jtag_readdata;
+    wire                jtag_write;
+    wire    [31:0]      jtag_writedata;
+    wire                jtag_waitrequest;
+    wire                jtag_readdata_valid;
+    wire    [31:0]      av_addr;
+    wire    [3:0]       jtag_byteenable; // Dummy wire
+ 
+    assign jtag_addr = av_addr[23:2]; 
+
+@@ if {$XCVR_TYPE_GUI} {
+    // QHIP_level JTAG MASTER
+     eth_f_jtag_int_fht jtag_master_eth_f (
+        .clk_clk                (i_reconfig_clk),
+        .clk_reset_reset        (i_reconfig_reset),
+        .master_address         (av_addr),
+        .master_readdata        (jtag_readdata),
+        .master_read            (jtag_read),
+        .master_write           (jtag_write),
+        .master_writedata       (jtag_writedata),
+        .master_waitrequest     (jtag_waitrequest),
+        .master_readdatavalid   (jtag_readdata_valid),
+        .master_byteenable      (jtag_byteenable),
+        .master_reset_reset     ()
+    );
+@@ } else {
+	// QHIP_level JTAG MASTER
+	 eth_f_jtag_int_fgt jtag_master_eth_f (
+	    .clk_clk                (i_reconfig_clk),
+	    .clk_reset_reset        (i_reconfig_reset),
+	    .master_address         (av_addr),
+	    .master_readdata        (jtag_readdata),
+	    .master_read            (jtag_read),
+	    .master_write           (jtag_write),
+	    .master_writedata       (jtag_writedata),
+	    .master_waitrequest     (jtag_waitrequest),
+	    .master_readdatavalid   (jtag_readdata_valid),
+	    .master_byteenable      (jtag_byteenable),
+	    .master_reset_reset     ()
+	);
+@@ }
+
+	 
+    // Design Example AVMM Decoding
+
+    wire                        eth_cs;
+    wire                        eth_jtag_read;
+    wire                        eth_jtag_write;
+    wire                        eth_jtag_waitrequest;
+    wire                        eth_jtag_readdata_valid;
+
+    wire    [LANE_NUM-1:0]      xcvr_cs;
+    wire    [LANE_NUM-1:0]      xcvr_jtag_read;
+    wire    [LANE_NUM-1:0]      xcvr_jtag_write;
+    wire    [LANE_NUM-1:0]      xcvr_jtag_waitrequest;
+    wire    [LANE_NUM-1:0]      xcvr_jtag_readdata_valid;
+
+    genvar ch;
+
+    generate
+	//JTAG Addess Decode Scheme for GDR
+        // ch is based on number of physical xcvr lanes used in DUT
+
+        //reconfig eth address space 000000 - 00FFFC this is 14 bits + 2bits 0  = 16 bits 
+        //reconfig xcvr0 address space 800000 - 8FFFFC this is 18 bits + 2bits 0 = 20 bits
+        //adress is using word address so dropping lowest 2 bits
+        //reconfig address 000000 - 003FFF
+        //reconfig xcvr0 address 000000- 23FFFF
+	//reconfig xcvr0-7 =  21:19 bits word address 8-F  
+
+        //jtag to eth decode
+        assign  eth_cs                      =   (jtag_addr >= 22'h0_00000) && (jtag_addr <= 22'h0_03FFF);
+        assign  eth_jtag_read               =   jtag_read && eth_cs;
+        assign  eth_jtag_write              =   jtag_write && eth_cs;
+        
+        //jtag to xcvr decode
+        for (ch = 0; ch < LANE_NUM; ch=ch+1) begin : XCVR_AVMM_CS
+            assign xcvr_cs[ch]                  = (jtag_addr[21:18] == ch + 8);
+            assign xcvr_jtag_read[ch]           = jtag_read && xcvr_cs[ch];
+            assign xcvr_jtag_write[ch]          = jtag_write && xcvr_cs[ch];
+        end
+
+        //assign  jtag_readdata_valid   =   |{(o_reconfig_eth_readdata_valid_jtag_arb  & (~eth_jtag_waitrequest )), 
+		   //                                   (o_reconfig_xcvr_readdata_valid_jtag_arb & (~xcvr_jtag_waitrequest))};
+        
+ 
+	
+	if(LANE_NUM == 8) begin: EIGHT_LANE_MUX
+                //ehip vs xcvr decoder 
+                assign  jtag_waitrequest  =   eth_cs ? eth_jtag_waitrequest :
+                                              xcvr_cs[0] ? xcvr_jtag_waitrequest[0] :
+                                              xcvr_cs[1] ? xcvr_jtag_waitrequest[1] :
+                                              xcvr_cs[2] ? xcvr_jtag_waitrequest[2] :
+                                              xcvr_cs[3] ? xcvr_jtag_waitrequest[3] :
+                                              xcvr_cs[4] ? xcvr_jtag_waitrequest[4] :
+                                              xcvr_cs[5] ? xcvr_jtag_waitrequest[5] :
+                                              xcvr_cs[6] ? xcvr_jtag_waitrequest[6] :
+                                              xcvr_cs[7] ? xcvr_jtag_waitrequest[7] :
+                                              1'b0;
+                assign  jtag_readdata_valid  =   eth_cs ? eth_jtag_readdata_valid :
+                                              xcvr_cs[0] ? xcvr_jtag_readdata_valid[0] :
+                                              xcvr_cs[1] ? xcvr_jtag_readdata_valid[1] :
+                                              xcvr_cs[2] ? xcvr_jtag_readdata_valid[2] :
+                                              xcvr_cs[3] ? xcvr_jtag_readdata_valid[3] :
+                                              xcvr_cs[4] ? xcvr_jtag_readdata_valid[4] :
+                                              xcvr_cs[5] ? xcvr_jtag_readdata_valid[5] :
+                                              xcvr_cs[6] ? xcvr_jtag_readdata_valid[6] :
+                                              xcvr_cs[7] ? xcvr_jtag_readdata_valid[7] :
+                                              1'b0;
+                assign  jtag_readdata     =   eth_jtag_readdata_valid  ? o_reconfig_eth_readdata_jtag_arb :
+                                              xcvr_jtag_readdata_valid[0] ? o_reconfig_xcvr_readdata_jtag_arb[31:0   ] :
+                                              xcvr_jtag_readdata_valid[1] ? o_reconfig_xcvr_readdata_jtag_arb[63:32  ] :
+                                              xcvr_jtag_readdata_valid[2] ? o_reconfig_xcvr_readdata_jtag_arb[95:64  ] :
+                                              xcvr_jtag_readdata_valid[3] ? o_reconfig_xcvr_readdata_jtag_arb[127:96 ] : 
+                                              xcvr_jtag_readdata_valid[4] ? o_reconfig_xcvr_readdata_jtag_arb[159:128] :
+                                              xcvr_jtag_readdata_valid[5] ? o_reconfig_xcvr_readdata_jtag_arb[191:160] :
+                                              xcvr_jtag_readdata_valid[6] ? o_reconfig_xcvr_readdata_jtag_arb[223:192] :
+                                              xcvr_jtag_readdata_valid[7] ? o_reconfig_xcvr_readdata_jtag_arb[255:224] : 
+                                              32'hdeadc0de;
+        end
+	else if (LANE_NUM == 4) begin: FOUR_LANE_MUX
+                //ehip vs xcvr decoder 
+                assign  jtag_waitrequest  =   eth_cs ? eth_jtag_waitrequest :
+                                              xcvr_cs[0] ? xcvr_jtag_waitrequest[0] :
+                                              xcvr_cs[1] ? xcvr_jtag_waitrequest[1] :
+                                              xcvr_cs[2] ? xcvr_jtag_waitrequest[2] :
+                                              xcvr_cs[3] ? xcvr_jtag_waitrequest[3] :
+                                              1'b0;
+                assign  jtag_readdata_valid  =   eth_cs ? eth_jtag_readdata_valid :
+                                              xcvr_cs[0] ? xcvr_jtag_readdata_valid[0] :
+                                              xcvr_cs[1] ? xcvr_jtag_readdata_valid[1] :
+                                              xcvr_cs[2] ? xcvr_jtag_readdata_valid[2] :
+                                              xcvr_cs[3] ? xcvr_jtag_readdata_valid[3] :
+                                              1'b0;															 
+                assign  jtag_readdata     =   eth_jtag_readdata_valid  ? o_reconfig_eth_readdata_jtag_arb :
+                                              xcvr_jtag_readdata_valid[0] ? o_reconfig_xcvr_readdata_jtag_arb[31:0   ] :
+                                              xcvr_jtag_readdata_valid[1] ? o_reconfig_xcvr_readdata_jtag_arb[63:32  ] :
+                                              xcvr_jtag_readdata_valid[2] ? o_reconfig_xcvr_readdata_jtag_arb[95:64  ] :
+                                              xcvr_jtag_readdata_valid[3] ? o_reconfig_xcvr_readdata_jtag_arb[127:96 ] : 
+                                               32'hdeadc0de;
+        end
+	else if (LANE_NUM == 2) begin: TWO_LANE_MUX
+                //ehip vs xcvr decoder 
+                assign  jtag_waitrequest  =   eth_cs ? eth_jtag_waitrequest :
+                                              xcvr_cs[0] ? xcvr_jtag_waitrequest[0] :
+                                              xcvr_cs[1] ? xcvr_jtag_waitrequest[1] :
+                                              1'b0;
+                assign  jtag_readdata_valid  =   eth_cs ? eth_jtag_readdata_valid :
+                                              xcvr_cs[0] ? xcvr_jtag_readdata_valid[0] :
+                                              xcvr_cs[1] ? xcvr_jtag_readdata_valid[1] :
+                                              1'b0;															 
+                assign  jtag_readdata     =   eth_jtag_readdata_valid  ? o_reconfig_eth_readdata_jtag_arb :
+                                              xcvr_jtag_readdata_valid[0] ? o_reconfig_xcvr_readdata_jtag_arb[31:0   ] :
+                                              xcvr_jtag_readdata_valid[1] ? o_reconfig_xcvr_readdata_jtag_arb[63:32  ] :
+                                              32'hdeadc0de;
+        end
+	else if (LANE_NUM == 1) begin: ONE_LANE_MUX
+                //ehip vs xcvr decoder 
+                assign  jtag_waitrequest  =   eth_cs ? eth_jtag_waitrequest :
+                                              xcvr_cs[0] ? xcvr_jtag_waitrequest[0] :
+                                              1'b0;
+                assign  jtag_readdata_valid  =   eth_cs ? eth_jtag_readdata_valid :
+                                              xcvr_cs[0] ? xcvr_jtag_readdata_valid[0] :
+                                              1'b0;															 
+                assign  jtag_readdata     =   eth_jtag_readdata_valid  ? o_reconfig_eth_readdata_jtag_arb :
+                                              xcvr_jtag_readdata_valid[0] ? o_reconfig_xcvr_readdata_jtag_arb[31:0   ] :
+                                              32'hdeadc0de;
+        end
+
+    // Combine AVMMs
+        eth_f_rcfg_arb #(
+            .TOTAL_MASTERS  (2), // Reuse arbiter from alt_xcvr_avmm_arb.sv 
+            .CHANNELS       (1),
+            .ADDRESS_WIDTH  (14),
+            .DATA_WIDTH     (32)
+        ) arb_jtag_eth (
+
+            // Basic AVMM inputs
+            .ini_clk            (i_reconfig_clk),
+            .ini_reset          (i_reconfig_reset),
+
+            // USER and JTAG EHIP Reconfig
+            .ini_read           ({i_reconfig_eth_read, eth_jtag_read}),
+            .ini_write          ({i_reconfig_eth_write, eth_jtag_write}),
+            .ini_address        ({i_reconfig_eth_addr, jtag_addr[13:0]}),
+            .ini_byteenable     ({i_reconfig_eth_byteenable,4'hF}),
+            .ini_writedata      ({i_reconfig_eth_writedata, jtag_writedata}),
+            .ini_read_write     ({i_reconfig_eth_read || i_reconfig_eth_write, eth_jtag_read || eth_jtag_write}),
+            .ini_waitrequest    ({o_reconfig_eth_waitrequest, eth_jtag_waitrequest}),
+            .ini_readdatavalid  ({o_reconfig_eth_readdata_valid, eth_jtag_readdata_valid}),
+
+            // Combined EHIP Reconfig
+            .avmm_read          (i_reconfig_eth_read_jtag_arb),
+            .avmm_write         (i_reconfig_eth_write_jtag_arb),
+            .avmm_address       (i_reconfig_eth_addr_jtag_arb),
+            .avmm_byteenable    (i_reconfig_eth_byteenable_jtag_arb),
+            .avmm_writedata     (i_reconfig_eth_writedata_jtag_arb),
+            .avmm_readdatavalid (o_reconfig_eth_readdata_valid_jtag_arb),
+            .avmm_waitrequest   (o_reconfig_eth_waitrequest_jtag_arb)
+        );
+
+
+    assign  o_reconfig_eth_readdata         =   o_reconfig_eth_readdata_jtag_arb;
+
+
+    for (ch = 0; ch < LANE_NUM; ch=ch+1) begin : XCVR_JTAG_ARB
+
+    eth_f_rcfg_arb #(
+            .TOTAL_MASTERS  (2), // Reuse arbiter from alt_xcvr_avmm_arb.sv 
+            .CHANNELS       (1),
+            .ADDRESS_WIDTH  (18),
+            .DATA_WIDTH     (32)
+    ) arb_jtag_xcvr (
+
+            // Basic AVMM inputs
+            .ini_clk            (i_reconfig_clk),
+            .ini_reset          (i_reconfig_reset),
+            // USER and JTAG EHIP Reconfig
+            .ini_read           ({i_reconfig_xcvr_read[ch], xcvr_jtag_read[ch]}),
+            .ini_write          ({i_reconfig_xcvr_write[ch], xcvr_jtag_write[ch]}),
+            .ini_address        ({i_reconfig_xcvr_addr[ch*18+:18], jtag_addr[17:0]}),
+            .ini_byteenable     ({i_reconfig_xcvr_byteenable[ch*4+:4],4'hF}),
+            .ini_writedata      ({i_reconfig_xcvr_writedata[ch*32+:32], jtag_writedata}),
+            .ini_read_write     ({i_reconfig_xcvr_read[ch] || i_reconfig_xcvr_write[ch], xcvr_jtag_read[ch] || xcvr_jtag_write[ch]}),
+            .ini_waitrequest    ({o_reconfig_xcvr_waitrequest[ch], xcvr_jtag_waitrequest[ch]}),
+            .ini_readdatavalid  ({o_reconfig_xcvr_readdata_valid[ch], xcvr_jtag_readdata_valid[ch]}),
+
+            // Combined EHIP Reconfig
+            .avmm_read          (i_reconfig_xcvr_read_jtag_arb[ch]),
+            .avmm_write         (i_reconfig_xcvr_write_jtag_arb[ch]),
+            .avmm_address       (i_reconfig_xcvr_addr_jtag_arb[ch*18+:18]),
+            .avmm_byteenable    (i_reconfig_xcvr_byteenable_jtag_arb[ch*4+:4]),
+            .avmm_writedata     (i_reconfig_xcvr_writedata_jtag_arb[ch*32+:32]),
+            .avmm_readdatavalid (o_reconfig_xcvr_readdata_valid_jtag_arb[ch]),
+            .avmm_waitrequest   (o_reconfig_xcvr_waitrequest_jtag_arb[ch])
+
+    );
+
+    end
+
+    assign o_reconfig_xcvr_readdata = o_reconfig_xcvr_readdata_jtag_arb;
+
+    endgenerate
+
+endmodule
