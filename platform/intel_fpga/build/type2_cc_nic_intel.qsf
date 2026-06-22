@@ -1,0 +1,7 @@
+set_global_assignment -name TOP_LEVEL_ENTITY intel_type2_cc_nic_shell
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 1
+
+# Board-specific projects should source their own device, pin, and timing
+# constraints before or after this file, depending on local flow policy.
+source type2_cc_nic_intel_files.tcl

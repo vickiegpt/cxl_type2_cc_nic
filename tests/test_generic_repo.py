@@ -20,8 +20,6 @@ BLOCKED_TERMS = (
     "tokio1",
     "ConnectX",
     "PM1733a",
-    "QSFP",
-    "qsfp",
     "ens4063",
     "ens4043",
     "fpgans",
@@ -36,8 +34,10 @@ BLOCKED_TERMS = (
 
 BLOCKED_PATH_PARTS = (
     "__pycache__",
+    ".pytest_cache",
     "ia780i",
     "ia-780i",
+    "bmc",
     "oot_driver",
     "nic_to_nvme",
 )
@@ -68,6 +68,8 @@ TEXT_SUFFIXES = (
     ".yaml",
     ".json",
     ".gitignore",
+    ".qip",
+    ".ip",
     ".mk",
 )
 

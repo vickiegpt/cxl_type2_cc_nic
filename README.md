@@ -1,16 +1,17 @@
 # CXL Type-2 CC NIC
 
-This repository contains a generic Type-2 CC NIC bring-up core:
+This repository contains a generic Type-2 CC NIC bring-up stack:
 
 - `rtl/type2_nic/`: reusable SystemVerilog queue, MMIO, and optional host-DMA NIC logic
+- `platform/intel_fpga/`: Intel FPGA PCIe/MAC platform IP payload and generic filelist
 - `driver/`: out-of-tree Linux netdev driver for the Type-2 CC NIC register model
 - `scripts/type2_mmio_eth_test.py`: host-side BAR/MMIO packet-path bring-up tool
 - `docs/type2_cc_nic.md`: register map, queue layout, and integration notes
 
-The repo intentionally does not include a complete FPGA shell, endpoint wrapper,
-MAC/PCS wrapper, clock/reset tree, or host DMA requester. Integrators wire the
-core into their own CXL or PCIe endpoint design and provide the packet and DMA
-interfaces required by `type2_nic_top.sv`.
+The Intel FPGA platform directory keeps the PCIe and Ethernet IP source payload
+needed for a generic Agilex/F-Tile style integration. Board-management IP,
+board pin constraints, generated reports, local absolute paths, and old
+board-specific project files are intentionally excluded.
 
 ## RTL Integration
 
@@ -32,6 +33,27 @@ It exposes:
 Set `DMA_BACKEND_PRESENT` to `1'b1` only after the surrounding shell connects a
 real host-memory requester. With the default `1'b0`, the core reports that DMA
 mode is unavailable and software should use the BAR/MMIO path.
+
+## Intel FPGA Platform
+
+The generic Intel FPGA payload lives under:
+
+```text
+platform/intel_fpga/
+```
+
+It includes:
+
+- F-Tile 400G Ethernet MAC/PCS IP and example-design packet helpers
+- R-Tile PCIe endpoint constituent IP and BAR/reconfig bridges
+- clock/reset IP used by the platform shell
+- a generic `type2_cc_nic_intel_files.tcl` filelist for Quartus projects
+- a synthesizable Type-2 boundary module for wiring PCIe BAR, MAC stream, and
+  optional DMA requester logic around `type2_nic_top`
+
+The old board-management path is not part of this repo. A board adapter should
+provide only the device part, pin assignments, refclk/reset mapping, and any
+site-specific PCIe/MAC constraints.
 
 ## Driver
 
